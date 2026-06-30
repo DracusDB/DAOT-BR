@@ -1,0 +1,38 @@
+{
+	"schemaVersion": 1,
+	"id": "daotbr",
+	"version": "${version}",
+	"name": "DAOT BR",
+	"description": "A battle royale addon to Danny's Attack on Titan Mod",
+	"authors": [
+		"Dracus_DB"
+	],
+	"contact": {
+		"homepage": "https://dracusdb.net",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "MIT",
+	"icon": "assets/daotbr/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"net.dracus.daotbr.DAOTBR"
+		],
+		"fabric-datagen": [
+			"net.dracus.daotbr.DAOTBRDataGenerator"
+		],
+		"client": [
+			"net.dracus.daotbr.DAOTBRClient"
+		]
+	},
+	"mixins": [
+		"daotbr.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.19.3",
+		"minecraft": "~1.21.1",
+		"java": ">=21",
+		"fabric-api": "*",
+		"dannys-aot": "*"
+	}
+}
