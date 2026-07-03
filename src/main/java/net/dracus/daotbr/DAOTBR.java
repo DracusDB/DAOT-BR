@@ -1,5 +1,7 @@
 package net.dracus.daotbr;
 
+import net.dracus.daotbr.item.ModItemGroups;
+import net.dracus.daotbr.item.ModItems;
 import net.fabricmc.api.ModInitializer;
 
 import net.minecraft.util.Identifier;
@@ -14,6 +16,8 @@ public class DAOTBR implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
+		ModItemGroups.registerItemGroups();
+		ModItems.registerModItems();
 
 	}
 

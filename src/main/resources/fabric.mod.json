@@ -9,7 +9,7 @@
 	],
 	"contact": {
 		"homepage": "https://dracusdb.net",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"sources": "https://github.com/DracusDB/DAOT-BR"
 	},
 	"license": "MIT",
 	"icon": "assets/daotbr/icon.png",
