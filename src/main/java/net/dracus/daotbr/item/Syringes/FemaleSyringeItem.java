@@ -63,6 +63,7 @@ public class FemaleSyringeItem extends Item {
 
                 List<String> commands = List.of(
                         "daot bloodline remove " + playerName + " ackerman",
+                        "daot bloodline set " + playerName + " eldian",
                         "daot shifter set " + playerName + " female",
                         "team join Female " + playerName,
                         "tag " + playerName + " add titan_stealth",

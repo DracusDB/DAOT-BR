@@ -62,6 +62,7 @@ public class ColossalSyringeItem extends Item {
 
                 List<String> commands = List.of(
                         "daot bloodline remove " + playerName + " ackerman",
+                        "daot bloodline set " + playerName + " eldian",
                         "daot shifter set " + playerName + " colossal",
                         "team join Colossal " + playerName,
                         "tag " + playerName + " add titan_stealth",

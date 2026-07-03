@@ -1,6 +1,7 @@
 package net.dracus.daotbr.item;
 
 import net.dracus.daotbr.DAOTBR;
+import net.dracus.daotbr.item.BRItems.ThunderSpearPackageItem;
 import net.dracus.daotbr.item.Syringes.*;
 import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
@@ -19,6 +20,10 @@ public class ModItems {
     public static final Item FEMALE_SYRINGE = registerItem("female_syringe", new FemaleSyringeItem(new Item.Settings().maxCount(1)));
     public static final Item JAW_SYRINGE = registerItem("jaw_syringe", new JawSyringeItem(new Item.Settings().maxCount(1)));
     public static final Item WARHAMMER_SYRINGE = registerItem("warhammer_syringe", new WarhammerSyringeItem(new Item.Settings().maxCount(1)));
+
+    //daotbr items added
+    public static final Item THUNDER_SPEAR_PACKAGE = registerItem("thunder_spear_package", new ThunderSpearPackageItem(new Item.Settings().maxCount(1)));
+
 
     private static Item registerItem(String name, Item item) {
         return Registry.register(Registries.ITEM, Identifier.of(DAOTBR.MOD_ID, name), item);

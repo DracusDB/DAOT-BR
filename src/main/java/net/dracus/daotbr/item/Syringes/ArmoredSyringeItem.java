@@ -63,6 +63,7 @@ public class ArmoredSyringeItem extends Item {
 
                 List<String> commands = List.of(
                         "daot bloodline remove " + playerName + " ackerman",
+                        "daot bloodline set " + playerName + " eldian",
                         "daot shifter set " + playerName + " armored",
                         "team join Armored " + playerName,
                         "tag " + playerName + " add titan_stealth",

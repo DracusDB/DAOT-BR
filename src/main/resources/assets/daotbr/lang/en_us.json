@@ -9,7 +9,10 @@
   "item.daotbr.jaw_syringe": "§e§lJaw Titan Syringe",
   "item.daotbr.warhammer_syringe": "§5§lWarhammer Titan Syringe",
 
+  "item.daotbr.thunder_spear_package": "§8§lThunder Spear Package",
 
-  "itemgroup.daotbr.shifter_syringes_items": "DAOT BR Syringes"
+
+  "itemgroup.daotbr.shifter_syringes_items": "DAOT BR Syringes",
+  "itemgroup.daotbr.daotbr_items": "DAOT BR Items"
 
 }

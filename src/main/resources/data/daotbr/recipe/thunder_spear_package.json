@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "dannys-aot:thunder_spear"
+    },
+    {
+      "item": "dannys-aot:thunder_spear"
+    },
+    {
+      "item": "dannys-aot:thunder_spear"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "daotbr:thunder_spear_package"
+  }
+}
