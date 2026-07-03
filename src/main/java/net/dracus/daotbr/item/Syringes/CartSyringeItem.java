@@ -66,7 +66,7 @@ public class CartSyringeItem extends Item {
                         "daot shifter set " + playerName + " cart",
                         "team join Cart " + playerName,
                         "tag " + playerName + " add titan_stealth",
-                        "tag " + playerName + " remove has_hardening",
+                        "tag " + playerName + " remove has_hardening"
 
                 );
 
