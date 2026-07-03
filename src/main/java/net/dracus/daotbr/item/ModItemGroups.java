@@ -30,10 +30,12 @@ public class ModItemGroups {
 
     public static final ItemGroup DAOTBR_ITEMS_GROUP = Registry.register(Registries.ITEM_GROUP,
             Identifier.of(DAOTBR.MOD_ID, "daotbr_items"),
-            FabricItemGroup.builder().icon(() -> new ItemStack(ModItems.THUNDER_SPEAR_PACKAGE))
+            FabricItemGroup.builder().icon(() -> new ItemStack(ModItems.BR_START))
                     .displayName(Text.translatable("itemgroup.daotbr.daotbr_items"))
                     .entries((displayContext, entries) -> {
                         entries.add(ModItems.THUNDER_SPEAR_PACKAGE);
+                        entries.add(ModItems.APG_PACKAGE);
+                        entries.add(ModItems.BR_START);
                     })
 
                     .build());
