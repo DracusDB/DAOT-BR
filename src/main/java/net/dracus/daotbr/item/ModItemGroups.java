@@ -36,6 +36,7 @@ public class ModItemGroups {
                         entries.add(ModItems.THUNDER_SPEAR_PACKAGE);
                         entries.add(ModItems.APG_PACKAGE);
                         entries.add(ModItems.BR_START);
+                        entries.add(ModItems.SHIFTER_AIRDROP);
                     })
 
                     .build());

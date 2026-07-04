@@ -67,7 +67,8 @@ public class BeastSyringeItem extends Item {
                         "daot shifter set " + playerName + " beast",
                         "team join Beast " + playerName,
                         "tag " + playerName + " add titan_stealth",
-                        "tag " + playerName + " remove has_hardening"
+                        "tag " + playerName + " remove has_hardening",
+                        "execute at @a run playsound dannys-aot:royalshout ambient @a ~ ~ ~ 0.5"
                 );
 
                 for (String command : commands) {

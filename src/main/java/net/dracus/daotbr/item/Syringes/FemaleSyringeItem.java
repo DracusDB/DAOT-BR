@@ -18,6 +18,7 @@ import net.minecraft.world.World;
 
 import java.util.List;
 
+
 //TO BE CHANGED PER TITAN
 public class FemaleSyringeItem extends Item {
     public FemaleSyringeItem(Settings settings) {
@@ -67,13 +68,16 @@ public class FemaleSyringeItem extends Item {
                         "daot shifter set " + playerName + " female",
                         "team join Female " + playerName,
                         "tag " + playerName + " add titan_stealth",
-                        "tag " + playerName + " remove has_hardening"
+                        "tag " + playerName + " remove has_hardening",
+                        "execute at @a run playsound dannys-aot:femaletitan_roar ambient @a ~ ~ ~ 1.0"
+
                 );
 
                 for (String command : commands) {
                     System.out.println("Running command: [" + command + "]");
                     server.getCommandManager().executeWithPrefix(server.getCommandSource(), command);
                 }
+
 
                 List<SoundEvent> sounds = List.of(
                         SoundEvents.ENTITY_LIGHTNING_BOLT_THUNDER,
