@@ -40,13 +40,13 @@ public class ShifterAirdropItem extends Item {
     }
 
     @Override
-    public boolean hasGlint (ItemStack stack) {
+    public boolean hasGlint(ItemStack stack) {
         return true;
     }
 
     @Override
     public UseAction getUseAction(ItemStack stack) {
-        return UseAction.SPEAR;
+        return UseAction.BOW;
     }
 
     @Override
@@ -63,41 +63,63 @@ public class ShifterAirdropItem extends Item {
                 ServerWorld serverWorld = (ServerWorld) world;
                 BlockPos playerPos = serverPlayer.getBlockPos();
                 int groundY = serverWorld.getTopY(Heightmap.Type.MOTION_BLOCKING, playerPos.getX(), playerPos.getZ());
-//                System.out.println("Player at Y=" + playerPos.getY() + " | Computed groundY=" + groundY);
                 BlockPos targetPos = new BlockPos(playerPos.getX(), groundY, playerPos.getZ());
                 double spawnY = 250;
 
                 DisplayEntity.BlockDisplayEntity crate = EntityType.BLOCK_DISPLAY.create(serverWorld);
+
                 if (crate != null) {
                     crate.setBlockState(Blocks.CHEST.getDefaultState());
-                    crate.refreshPositionAndAngles(targetPos.getX() + 0.5, spawnY, targetPos.getZ() + 0.5, 0f, 0f);
+                    crate.refreshPositionAndAngles(
+                            targetPos.getX() + 0.5,
+                            spawnY,
+                            targetPos.getZ() + 0.5,
+                            0f,
+                            0f
+                    );
                     serverWorld.spawnEntity(crate);
 
-                    ShifterAirdropManager.register(crate, targetPos.getY());
+                    DisplayEntity.BlockDisplayEntity parachute = EntityType.BLOCK_DISPLAY.create(serverWorld);
+
+                    if (parachute != null) {
+                        parachute.setBlockState(Blocks.WHITE_WOOL.getDefaultState());
+                        parachute.refreshPositionAndAngles(
+                                targetPos.getX() + 0.5,
+                                spawnY + 3,
+                                targetPos.getZ() + 0.5,
+                                0f,
+                                0f
+                        );
+                        serverWorld.spawnEntity(parachute);
+
+                        // Register both entities together
+                        ShifterAirdropManager.register(crate, parachute, targetPos.getY());
+                    }
                 }
 
                 for (ServerPlayerEntity p : server.getPlayerManager().getPlayerList()) {
                     p.sendMessage(
-                            Text.literal(playerName + " has summoned a shifter syringe airdrop at " + targetPos.getX() + " " + targetPos.getY() + " " + targetPos.getZ() + "! It will land in 45 seconds!")
+                            Text.literal(playerName + " has summoned a shifter syringe airdrop at "
+                                            + targetPos.getX() + " "
+                                            + targetPos.getZ()
+                                            + "! It will land in 45 seconds!")
                                     .formatted(Formatting.AQUA, Formatting.ITALIC, Formatting.BOLD)
                     );
-
-                    world.playSound(
-                            null,
-                            serverPlayer.getBlockPos(),
-                            SoundEvents.BLOCK_BEACON_ACTIVATE,
-                            SoundCategory.PLAYERS,
-                            1.0f,
-                            1.0f
-
-                            );
                 }
 
+                world.playSound(
+                        null,
+                        serverPlayer.getBlockPos(),
+                        SoundEvents.BLOCK_BEACON_ACTIVATE,
+                        SoundCategory.PLAYERS,
+                        1.0f,
+                        1.0f
+                );
 
-                            stack.decrement(1);
-                }
-
+                stack.decrement(1);
             }
-                 return stack;
         }
+
+        return stack;
     }
+}

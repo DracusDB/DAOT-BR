@@ -18,13 +18,33 @@ import net.minecraft.particle.ParticleTypes;
 
 
 public class ShifterAirdropManager {
-    private static final List <FallingCrate> activateCrates = new ArrayList<>();
+    private static final List<FallingCrate> activateCrates = new ArrayList<>();
     private static final Random RANDOM = new Random();
 
-    public static void register(DisplayEntity.BlockDisplayEntity entity, double targetY) {
+    public static void register(DisplayEntity.BlockDisplayEntity entity, DisplayEntity.BlockDisplayEntity parachute, double targetY) {
         double distance = entity.getY() - targetY;
-        double fallSpeed = distance / (45 * 20); //distance over 45 secs, 20 is ticks per sec
-        activateCrates.add(new FallingCrate(entity, targetY, fallSpeed));
+        double fallSpeed = distance / (45 * 20);
+        activateCrates.add(new FallingCrate(entity, parachute, targetY, fallSpeed));
+    }
+
+    private static class FallingCrate {
+        final DisplayEntity.BlockDisplayEntity entity;
+        final DisplayEntity.BlockDisplayEntity parachute;
+        final double targetY;
+        final double fallSpeed;
+
+        FallingCrate(DisplayEntity.BlockDisplayEntity entity, DisplayEntity.BlockDisplayEntity parachute, double targetY, double fallSpeed) {
+            this.entity = entity;
+            this.parachute = parachute;
+            this.targetY = targetY;
+            this.fallSpeed = fallSpeed;
+        }
+    }
+
+    private static void addWeighted(List<Item> pool, Item item, int weight) {
+        for (int i = 0; i < weight; i++) {
+            pool.add(item);
+        }
     }
 
     public static void init() {
@@ -55,25 +75,27 @@ public class ShifterAirdropManager {
 
                     BlockEntity blockEntity = world.getBlockEntity(landPos);
                     if (blockEntity instanceof ChestBlockEntity chestEntity) {
-                        List<Item> possibleSyringes = List.of(
-                                ModItems.ARMORED_SYRINGE,
-                                ModItems.ATTACK_SYRINGE,
-                                ModItems.BEAST_SYRINGE,
-                                ModItems.CART_SYRINGE,
-                                ModItems.COLOSSAL_SYRINGE,
-                                ModItems.FEMALE_SYRINGE,
-                                ModItems.JAW_SYRINGE,
-                                ModItems.WARHAMMER_SYRINGE
-                        );
+                        List<Item> weightedPool = new ArrayList<>();
 
-                        Item syringe = possibleSyringes.get(RANDOM.nextInt(possibleSyringes.size()));
+                        addWeighted(weightedPool, ModItems.ATTACK_SYRINGE, 3);
+                        addWeighted(weightedPool, ModItems.ARMORED_SYRINGE, 3);
+                        addWeighted(weightedPool, ModItems.BEAST_SYRINGE, 3);
+//                        addWeighted(weightedPool, ModItems.CART_SYRINGE, 3);
+                        addWeighted(weightedPool, ModItems.FEMALE_SYRINGE, 3);
+                        addWeighted(weightedPool, ModItems.JAW_SYRINGE, 3);
+                        addWeighted(weightedPool, ModItems.WARHAMMER_SYRINGE, 3);
+                        addWeighted(weightedPool, ModItems.COLOSSAL_SYRINGE, 1);
+
+                        Item syringe = weightedPool.get(RANDOM.nextInt(weightedPool.size()));
                         chestEntity.setStack(13, new ItemStack(syringe));
                     }
 
                     crate.entity.discard();
+                    crate.parachute.discard();
                     iterator.remove();
                 } else {
                     crate.entity.setPosition(crate.entity.getX(), newY, crate.entity.getZ());
+                    crate.parachute.setPosition(crate.entity.getX(), newY + 3, crate.entity.getZ());
 
                     ((ServerWorld) world).spawnParticles(
                             ParticleTypes.WHITE_SMOKE,
@@ -89,17 +111,5 @@ public class ShifterAirdropManager {
                 }
             }
         });
-    }
-
-    private static class FallingCrate {
-        final DisplayEntity.BlockDisplayEntity entity;
-        final double targetY;
-        final double fallSpeed;
-
-        FallingCrate(DisplayEntity.BlockDisplayEntity entity, double targetY, double fallSpeed) {
-            this.entity = entity;
-            this.targetY = targetY;
-            this.fallSpeed = fallSpeed;
-        }
     }
 }
