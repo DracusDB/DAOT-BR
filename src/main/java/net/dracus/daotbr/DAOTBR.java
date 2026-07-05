@@ -21,6 +21,7 @@ public class DAOTBR implements ModInitializer {
 		ModItems.registerModItems();
 
 		ShifterAirdropManager.init();
+		ShifterAirdropManager.initWaypointScheduler();
 
 	}
 

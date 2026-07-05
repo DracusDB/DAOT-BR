@@ -4,6 +4,7 @@ import net.dracus.daotbr.item.ModItems;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.decoration.DisplayEntity;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.block.entity.BlockEntity;
@@ -44,6 +45,41 @@ public class ShifterAirdropManager {
     private static void addWeighted(List<Item> pool, Item item, int weight) {
         for (int i = 0; i < weight; i++) {
             pool.add(item);
+        }
+    }
+
+    private static final List<ScheduledRemoval> scheduledRemovals = new ArrayList<>();
+
+    public static void scheduleWaypointRemoval(MinecraftServer server, String waypointName, int delayTicks) {
+        scheduledRemovals.add(new ScheduledRemoval(server, waypointName, delayTicks));
+    }
+
+    public static void initWaypointScheduler() {
+        ServerTickEvents.END_SERVER_TICK.register(server -> {
+            Iterator<ScheduledRemoval> iterator = scheduledRemovals.iterator();
+            while (iterator.hasNext()) {
+                ScheduledRemoval task = iterator.next();
+                task.ticksRemaining--;
+
+                if (task.ticksRemaining <= 0) {
+                    String deleteCommand = "jm waypoint delete " + task.waypointName + " @a true";
+                    System.out.println("Attempting to delete waypoint: [" + deleteCommand + "]");
+                    task.server.getCommandManager().executeWithPrefix(task.server.getCommandSource(), deleteCommand);
+                    iterator.remove();
+                }
+            }
+        });
+    }
+
+    private static class ScheduledRemoval {
+        final MinecraftServer server;
+        final String waypointName;
+        int ticksRemaining;
+
+        ScheduledRemoval(MinecraftServer server, String waypointName, int ticksRemaining) {
+            this.server = server;
+            this.waypointName = waypointName;
+            this.ticksRemaining = ticksRemaining;
         }
     }
 
