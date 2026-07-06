@@ -9,10 +9,11 @@
   "item.daotbr.jaw_syringe": "§e§lJaw Titan Syringe",
   "item.daotbr.warhammer_syringe": "§5§lWarhammer Titan Syringe",
 
-  "item.daotbr.thunder_spear_package": "§8§lThunder Spear Package",
-  "item.daotbr.apg_package": "§7§lAnti-personnel Gear Package",
+  "item.daotbr.thunder_spear_package": "§8Thunder Spear Package",
+  "item.daotbr.apg_package": "§7Anti-personnel Gear Package",
   "item.daotbr.br_start": "§8§lBattle Royale Start",
-  "item.daotbr.shifter_airdrop": "§3§lShifter Syringe Airdrop",
+  "item.daotbr.shifter_airdrop": "§3Shifter Syringe Airdrop",
+  "item.daotbr.shield_potion": "§9Shield Potion",
 
 
   "itemgroup.daotbr.shifter_syringes_items": "DAOT BR Syringes",
