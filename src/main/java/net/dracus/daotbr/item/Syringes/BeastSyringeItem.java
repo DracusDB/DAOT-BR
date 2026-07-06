@@ -63,10 +63,12 @@ public class BeastSyringeItem extends Item {
 
                 List<String> commands = List.of(
                         "daot bloodline remove " + playerName + " ackerman",
+                        "daot bloodline set " + playerName + " eldian",
                         "daot shifter set " + playerName + " beast",
                         "team join Beast " + playerName,
                         "tag " + playerName + " add titan_stealth",
-                        "tag " + playerName + " remove has_hardening"
+                        "tag " + playerName + " remove has_hardening",
+                        "execute at @a run playsound dannys-aot:royalshout ambient @a ~ ~ ~ 0.5"
                 );
 
                 for (String command : commands) {

@@ -62,6 +62,7 @@ public class WarhammerSyringeItem extends Item {
 
                 List<String> commands = List.of(
                         "daot bloodline remove " + playerName + " ackerman",
+                        "daot bloodline set " + playerName + " eldian",
                         "daot shifter set " + playerName + " warhammer",
                         "team join Warhammer " + playerName,
                         "tag " + playerName + " add titan_stealth",

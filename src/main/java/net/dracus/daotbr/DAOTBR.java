@@ -1,5 +1,7 @@
 package net.dracus.daotbr;
 
+import net.dracus.daotbr.item.Airdrops.ShifterAirdropManager;
+import net.dracus.daotbr.item.BRFeatures.FlareGunListener;
 import net.dracus.daotbr.item.ModItemGroups;
 import net.dracus.daotbr.item.ModItems;
 import net.fabricmc.api.ModInitializer;
@@ -57,6 +59,10 @@ public class DAOTBR implements ModInitializer {
 				LOGGER.info("{} died, teleported to {}, and was set to spectator", name, paradisKey.getValue());
 			}
 		});
+		ShifterAirdropManager.init();
+		ShifterAirdropManager.initWaypointScheduler();
+		FlareGunListener.register();
+
 	}
 
 
