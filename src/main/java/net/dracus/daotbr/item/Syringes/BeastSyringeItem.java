@@ -63,6 +63,7 @@ public class BeastSyringeItem extends Item {
 
                 List<String> commands = List.of(
                         "daot bloodline remove " + playerName + " ackerman",
+                        "daot bloodline set " + playerName + " eldian",
                         "daot shifter set " + playerName + " beast",
                         "team join Beast " + playerName,
                         "tag " + playerName + " add titan_stealth",

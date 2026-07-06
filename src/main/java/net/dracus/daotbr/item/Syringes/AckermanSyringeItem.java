@@ -100,7 +100,7 @@ public class AckermanSyringeItem extends Item {
                     );
                 }
 
-                //TO BE CHANGED PER TITAN
+
                 for (ServerPlayerEntity p : server.getPlayerManager().getPlayerList()) {
                     p.sendMessage(
                             Text.literal(playerName + " has awakened their Ackerman powers!")

@@ -63,6 +63,7 @@ public class AttackSyringeItem extends Item {
 
                 List<String> commands = List.of(
                         "daot bloodline remove " + playerName + " ackerman",
+                        "daot bloodline set " + playerName + " eldian",
                         "daot shifter set " + playerName + " attack",
                         "team join Attack " + playerName,
                         "tag " + playerName + " add titan_stealth",
