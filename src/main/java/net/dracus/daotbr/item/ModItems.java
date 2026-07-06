@@ -1,6 +1,7 @@
 package net.dracus.daotbr.item;
 
 import net.dracus.daotbr.DAOTBR;
+import net.dracus.daotbr.item.Airdrops.ShifterAirdropItem;
 import net.dracus.daotbr.item.BRItems.APGPackageItem;
 import net.dracus.daotbr.item.BRItems.BRStartItem;
 import net.dracus.daotbr.item.BRItems.ThunderSpearPackageItem;
@@ -27,6 +28,8 @@ public class ModItems {
     public static final Item THUNDER_SPEAR_PACKAGE = registerItem("thunder_spear_package", new ThunderSpearPackageItem(new Item.Settings().maxCount(1)));
     public static final Item APG_PACKAGE = registerItem("apg_package", new APGPackageItem(new Item.Settings().maxCount(1)));
     public static final Item BR_START = registerItem("br_start", new BRStartItem(new Item.Settings().maxCount(1)));
+
+    public static final Item SHIFTER_AIRDROP = registerItem("shifter_airdrop", new ShifterAirdropItem(new Item.Settings().maxCount(1)));
 
 
     private static Item registerItem(String name, Item item) {

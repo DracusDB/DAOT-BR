@@ -67,7 +67,8 @@ public class AttackSyringeItem extends Item {
                         "daot shifter set " + playerName + " attack",
                         "team join Attack " + playerName,
                         "tag " + playerName + " add titan_stealth",
-                        "tag " + playerName + " remove has_hardening"
+                        "tag " + playerName + " remove has_hardening",
+                        "execute at @a run playsound dannys-aot:attacktitanroar ambient @a ~ ~ ~ 1.5"
                 );
 
                 for (String command : commands) {

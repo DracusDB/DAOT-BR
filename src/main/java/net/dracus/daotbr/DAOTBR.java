@@ -1,5 +1,7 @@
 package net.dracus.daotbr;
 
+import net.dracus.daotbr.item.Airdrops.ShifterAirdropManager;
+import net.dracus.daotbr.item.BRFeatures.FlareGunListener;
 import net.dracus.daotbr.item.ModItemGroups;
 import net.dracus.daotbr.item.ModItems;
 import net.fabricmc.api.ModInitializer;
@@ -18,6 +20,10 @@ public class DAOTBR implements ModInitializer {
 	public void onInitialize() {
 		ModItemGroups.registerItemGroups();
 		ModItems.registerModItems();
+
+		ShifterAirdropManager.init();
+		ShifterAirdropManager.initWaypointScheduler();
+		FlareGunListener.register();
 
 	}
 

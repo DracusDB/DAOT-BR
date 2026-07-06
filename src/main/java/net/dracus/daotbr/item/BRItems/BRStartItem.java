@@ -95,6 +95,7 @@ public class BRStartItem extends Item {
                         "gamerule announceAdvancements false",
                         "gamerule doFireTick false",
                         "gamerule keepInventory false",
+                        "gamerule doLimitedCrafting true",
 
                         "time set day",
 
