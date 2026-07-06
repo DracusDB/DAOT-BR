@@ -37,6 +37,7 @@ public class ModItemGroups {
                         entries.add(ModItems.APG_PACKAGE);
                         entries.add(ModItems.BR_START);
                         entries.add(ModItems.SHIFTER_AIRDROP);
+                        entries.add(ModItems.SHIELD_POTION);
                     })
 
                     .build());

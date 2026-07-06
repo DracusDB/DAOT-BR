@@ -25,14 +25,22 @@ public class BRStartItem extends Item {
 
     @Override
     public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
+        world.playSound(
+                null,
+                user.getBlockPos(),
+                SoundEvents.BLOCK_BEACON_ACTIVATE,
+                SoundCategory.PLAYERS,
+                1.0f,
+                1.0f
+        );
+
         user.setCurrentHand(hand);
         return TypedActionResult.consume(user.getStackInHand(hand));
-
     }
 
     @Override
     public void appendTooltip(ItemStack itemStack, TooltipContext context, List<Text> tooltip, TooltipType type) {
-        tooltip.add((Text.literal("Begin a small battle royale in Paradis").formatted(Formatting.GREEN, Formatting.ITALIC)));
+        tooltip.add((Text.literal("Begin a small battle royale in Paradis").formatted(Formatting.GREEN)));
     }
 
     @Override
@@ -140,17 +148,8 @@ public class BRStartItem extends Item {
 
                     for (String command : commands) {
                         System.out.println("Running command: [" + command + "]");
-                        server.getCommandManager().executeWithPrefix(server.getCommandSource(), command);
+                        server.getCommandManager().executeWithPrefix(server.getCommandSource().withSilent(), command);
                     }
-
-                    world.playSound(
-                            null,
-                            serverPlayer.getBlockPos(),
-                            SoundEvents.BLOCK_BEACON_ACTIVATE,
-                            SoundCategory.PLAYERS,
-                            1.0f,
-                            1.0f
-                    );
 
                     stack.decrement(1);
                 }

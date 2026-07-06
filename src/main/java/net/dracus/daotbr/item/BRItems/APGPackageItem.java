@@ -29,7 +29,7 @@ public class APGPackageItem extends Item {
 
     @Override
     public void appendTooltip(ItemStack itemStack, TooltipContext context, List<Text> tooltip, TooltipType type) {
-        tooltip.add((Text.literal("Right click to open a full anti-personnel gear set").formatted(Formatting.GRAY, Formatting.ITALIC)));
+        tooltip.add((Text.literal("Right click to open a full anti-personnel gear set").formatted(Formatting.GRAY)));
     }
 
     @Override
@@ -63,7 +63,7 @@ public class APGPackageItem extends Item {
 
                 for (String command : commands) {
                     System.out.println("Running command: [" + command + "]");
-                    server.getCommandManager().executeWithPrefix(server.getCommandSource(), command);
+                    server.getCommandManager().executeWithPrefix(server.getCommandSource().withSilent(), command);
                 }
 
                 world.playSound(

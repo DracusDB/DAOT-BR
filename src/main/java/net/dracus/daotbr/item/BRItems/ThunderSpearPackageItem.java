@@ -29,7 +29,7 @@ public class ThunderSpearPackageItem extends Item {
 
     @Override
     public void appendTooltip (ItemStack itemStack, TooltipContext context, List<Text> tooltip, TooltipType type) {
-        tooltip.add((Text.literal("Right click to open a bundle of thunder spears. Re-craft them to make the package again.").formatted(Formatting.GRAY, Formatting.ITALIC)));
+        tooltip.add((Text.literal("Right click to open a bundle of thunder spears. Re-craft them to make the package again.").formatted(Formatting.GRAY)));
     }
 
     @Override

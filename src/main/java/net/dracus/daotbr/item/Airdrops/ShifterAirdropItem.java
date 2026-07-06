@@ -30,7 +30,7 @@ public class ShifterAirdropItem extends Item {
 
     @Override
     public void appendTooltip(ItemStack itemStack, TooltipContext context, List<Text> tooltip, TooltipType type) {
-        tooltip.add((Text.literal("Right click to call in a titan shifter syringe airdrop.").formatted(Formatting.GRAY, Formatting.ITALIC)));
+        tooltip.add((Text.literal("Right click to call in a titan shifter syringe airdrop.").formatted(Formatting.GRAY)));
     }
 
     @Override
