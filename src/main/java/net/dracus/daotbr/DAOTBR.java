@@ -12,13 +12,9 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.GameMode;
-import net.minecraft.world.World;
 
 import net.minecraft.util.Identifier;
 
@@ -34,6 +30,16 @@ public class DAOTBR implements ModInitializer {
 	public void onInitialize() {
 		ModItemGroups.registerItemGroups();
 		ModItems.registerModItems();
+		registerDeathHandler();
+
+		ShifterAirdropManager.init();
+		ShifterAirdropManager.initWaypointScheduler();
+		FlareGunListener.register();
+
+		ModLootTableModifiers.modifyLootTables();
+
+		LobbyManager.register();
+		GameQueueManager.register();
 
 		ShifterAirdropManager.init();
 		ShifterAirdropManager.initWaypointScheduler();
@@ -45,30 +51,27 @@ public class DAOTBR implements ModInitializer {
 		GameQueueManager.register();
 
 
-		// Two apparent ways to do things on death, using the entity events or a mixin IE // Source - https://stackoverflow.com/a/73941878
-		// @Inject(method="onDeath", at=@At("TAIL"))
-		// This uses Server Entity Events
+	}
 
+
+	// Set to spectator on death
+	private static void registerDeathHandler(){
 		ServerLivingEntityEvents.AFTER_DEATH.register((LivingEntity entity, DamageSource source) -> {
 			if (entity instanceof ServerPlayerEntity player) {
 				MinecraftServer server = player.getServer();
 				if (server == null) return;
 
 				String name = player.getName().getString();
-
-				// Resolve the target dimension. If this logs a warning, the ID is wrong
-				RegistryKey<World> paradisKey =
-						RegistryKey.of(RegistryKeys.WORLD, Identifier.of("dannys-aot", "paradis"));
-				ServerWorld paradis = server.getWorld(paradisKey);
-				if (paradis == null) {
-					LOGGER.warn("Dimension {} not found — cannot teleport {}", paradisKey.getValue(), name);
-				}
-
-				player.teleport(paradis, 0, 64, 0, java.util.Set.of(), 0, 0);
+				server.getCommandManager().executeWithPrefix(server.getCommandSource().withSilent(), "team leave " + name);
 				player.changeGameMode(GameMode.SPECTATOR);
-				server.getCommandManager().executeWithPrefix(server.getCommandSource(), "team leave " + name);
 
-				LOGGER.info("{} died, teleported to {}, and was set to spectator", name, paradisKey.getValue());
+//				double targetY = player.getY();
+				server.getCommandManager().executeWithPrefix(server.getCommandSource().withSilent(),
+						"execute in dannys-aot:paradis run tp " + name + " 0 " + 100 + " 0");
+
+				// TP wasn't good enough, had to set respawn
+				server.getCommandManager().executeWithPrefix(server.getCommandSource().withSilent(),
+						"execute in dannys-aot:paradis run spawnpoint " + name + " 0 " + 100 + " 0");
 			}
 		});
 
