@@ -58,7 +58,6 @@ public class BRStartItem extends Item {
         return 50;
     }
 
-    //TO BE CHANGED PER TITAN
     @Override
     public ItemStack finishUsing(ItemStack stack, World world, LivingEntity user) {
         if (!world.isClient() && user instanceof ServerPlayerEntity serverPlayer) {

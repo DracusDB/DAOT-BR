@@ -1,9 +1,11 @@
 package net.dracus.daotbr;
 
 import net.dracus.daotbr.item.Airdrops.ShifterAirdropManager;
-import net.dracus.daotbr.item.BRFeatures.FlareGunListener;
+import net.dracus.daotbr.util.BRFeatures.FlareGunListener;
 import net.dracus.daotbr.item.ModItemGroups;
 import net.dracus.daotbr.item.ModItems;
+import net.dracus.daotbr.util.BRFeatures.GameQueueManager;
+import net.dracus.daotbr.util.BRFeatures.LobbyManager;
 import net.dracus.daotbr.util.ModLootTableModifiers;
 import net.fabricmc.api.ModInitializer;
 
@@ -33,6 +35,15 @@ public class DAOTBR implements ModInitializer {
 		ModItemGroups.registerItemGroups();
 		ModItems.registerModItems();
 
+		ShifterAirdropManager.init();
+		ShifterAirdropManager.initWaypointScheduler();
+		FlareGunListener.register();
+
+		ModLootTableModifiers.modifyLootTables();
+
+		LobbyManager.register();
+		GameQueueManager.register();
+
 
 		// Two apparent ways to do things on death, using the entity events or a mixin IE // Source - https://stackoverflow.com/a/73941878
 		// @Inject(method="onDeath", at=@At("TAIL"))
@@ -60,11 +71,6 @@ public class DAOTBR implements ModInitializer {
 				LOGGER.info("{} died, teleported to {}, and was set to spectator", name, paradisKey.getValue());
 			}
 		});
-		ShifterAirdropManager.init();
-		ShifterAirdropManager.initWaypointScheduler();
-		FlareGunListener.register();
-
-		ModLootTableModifiers.modifyLootTables();
 
 	}
 
