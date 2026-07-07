@@ -72,7 +72,7 @@ public class ArmoredSyringeItem extends Item {
 
                 for (String command : commands) {
                     System.out.println("Running command: [" + command + "]");
-                    server.getCommandManager().executeWithPrefix(server.getCommandSource(), command);
+                    server.getCommandManager().executeWithPrefix(server.getCommandSource().withSilent(), command);
                 }
 
                 List<SoundEvent> sounds = List.of(
