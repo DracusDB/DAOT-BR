@@ -203,9 +203,8 @@ public class GameQueueManager {
                 "gamerule weatherAffectsODM false",
                 "gamerule shifterSnitching false",
                 "gamerule ShifterExplosionDamage false",
-                "gamerule fairTitanPowerLoss false",
+                "gamerule fairTitanPowerLoss true",
                 "gamerule unfairPureTitans false",
-                //pvp should be set to false when joining lobby, but set to true when in game
                 "gamerule pvp true",
                 "gamerule announceAdvancements false",
                 "gamerule doFireTick false",
