@@ -1,9 +1,11 @@
 package net.dracus.daotbr;
 
 import net.dracus.daotbr.item.Airdrops.ShifterAirdropManager;
-import net.dracus.daotbr.item.BRFeatures.FlareGunListener;
+import net.dracus.daotbr.util.BRFeatures.FlareGunListener;
 import net.dracus.daotbr.item.ModItemGroups;
 import net.dracus.daotbr.item.ModItems;
+import net.dracus.daotbr.util.BRFeatures.GameQueueManager;
+import net.dracus.daotbr.util.BRFeatures.LobbyManager;
 import net.dracus.daotbr.util.ModLootTableModifiers;
 import net.fabricmc.api.ModInitializer;
 
@@ -36,10 +38,19 @@ public class DAOTBR implements ModInitializer {
 
 		ModLootTableModifiers.modifyLootTables();
 
-	}
+		LobbyManager.register();
+		GameQueueManager.register();
 
-	public static Identifier id(String path) {
-		return Identifier.of(MOD_ID, path);
+		ShifterAirdropManager.init();
+		ShifterAirdropManager.initWaypointScheduler();
+		FlareGunListener.register();
+
+		ModLootTableModifiers.modifyLootTables();
+
+		LobbyManager.register();
+		GameQueueManager.register();
+
+
 	}
 
 
@@ -63,5 +74,10 @@ public class DAOTBR implements ModInitializer {
 						"execute in dannys-aot:paradis run spawnpoint " + name + " 0 " + 100 + " 0");
 			}
 		});
+
+	}
+
+	public static Identifier id(String path) {
+		return Identifier.of(MOD_ID, path);
 	}
 }
