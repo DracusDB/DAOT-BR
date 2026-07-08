@@ -1,6 +1,7 @@
 package net.dracus.daotbr.util.BRFeatures;
 
 import com.mojang.brigadier.CommandDispatcher;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.scoreboard.Scoreboard;
@@ -23,7 +24,7 @@ public class GameQueueManager {
     private static final int MIN_PLAYERS_TO_START = 2;
     private static final int COUNTDOWN_SECONDS = 5;
 
-    private static final Set<UUID> readyPlayers = new HashSet<>();
+    private static final Set<UUID> readyPlayers = new ObjectOpenHashSet<>();
     private static boolean countdownActive = false;
     private static int countdownTicksRemaining = 0;
 
@@ -43,7 +44,7 @@ public class GameQueueManager {
             ServerPlayerEntity player = ctx.getSource().getPlayer();
             if (player == null) return 0;
 
-            if (!LobbyManager.isInLobby(player.getWorld())) {
+            if (!GameStageManager.isInLobby(player.getWorld())) {
                 player.sendMessage(Text.literal("You must be in the lobby to ready up.").formatted(Formatting.RED), false);
                 return 0;
             }
@@ -66,6 +67,12 @@ public class GameQueueManager {
             ServerPlayerEntity player = ctx.getSource().getPlayer();
             if (player == null) return 0;
 
+            if (!readyPlayers.contains(player.getUuid())) {
+                player.sendMessage(Text.literal("You are not readied up!").formatted(Formatting.RED), false);
+
+                return 0;
+            }
+
             readyPlayers.remove(player.getUuid());
 
             Scoreboard scoreboard = ctx.getSource().getServer().getScoreboard();
@@ -84,6 +91,11 @@ public class GameQueueManager {
                 .then(literal("start")
                         .requires(source -> source.hasPermissionLevel(2)) // OP level 2+
                         .executes(ctx -> {
+                            if (GameStageManager.isInArenaStage()) {
+                                ctx.getSource().sendFeedback(
+                                        () -> Text.literal("A match is already in progress.").formatted(Formatting.RED), false);
+                                return 0;
+                            }
                             MinecraftServer server = ctx.getSource().getServer();
 
                             // Reset any in-progress queue state so it doesn't fire again after this forced start
@@ -131,14 +143,14 @@ public class GameQueueManager {
         //Everyone in lobby is ready:
         if (!countdownActive) {
             countdownActive = true;
-            countdownTicksRemaining = COUNTDOWN_SECONDS * 20;
+            countdownTicksRemaining = COUNTDOWN_SECONDS * 40;
             server.getPlayerManager().broadcast(
                     Text.literal("All players are ready! Beginning match in " + COUNTDOWN_SECONDS + " seconds").formatted(Formatting.GREEN), false);
         }
     }
 
     private static int getLobbyPlayerCount(MinecraftServer server) {
-        ServerWorld lobbyWorld = server.getWorld(LobbyManager.LOBBY_DIMENSION);
+        ServerWorld lobbyWorld = server.getWorld(GameStageManager.LOBBY_DIMENSION);
         if (lobbyWorld == null) return 0;
         return lobbyWorld.getPlayers().size();
     }
@@ -146,8 +158,8 @@ public class GameQueueManager {
     private static void onServerTick(MinecraftServer server) {
         if (!countdownActive) return;
 
-        if (countdownTicksRemaining % 20 == 0) {
-            int secondsLeft = countdownTicksRemaining / 20;
+        if (countdownTicksRemaining % 40 == 0) {
+            int secondsLeft = countdownTicksRemaining / 40;
             if (secondsLeft <= 5 || secondsLeft % 5 == 0) {
                 server.getPlayerManager().broadcast(
                         Text.literal("Battle royale starts in " + secondsLeft).formatted(Formatting.GOLD), false);
@@ -164,6 +176,9 @@ public class GameQueueManager {
     }
 
     public static void startBattleRoyale(MinecraftServer server) {
+        if (GameStageManager.isInArenaStage()) {
+            return;
+        }
         Scoreboard scoreboard = server.getScoreboard();
         Team readyTeam = scoreboard.getTeam(READY_TEAM_NAME);
         if (readyTeam != null) {
@@ -172,6 +187,8 @@ public class GameQueueManager {
                 scoreboard.removeScoreHolderFromTeam(name, readyTeam);
             }
         }
+
+        GameStageManager.beginArenaStage(new HashSet<>(server.getPlayerManager().getPlayerList()));
 
         List<String> commands = List.of(
                 //sets all players to eldian and resets shifters
@@ -235,27 +252,31 @@ public class GameQueueManager {
 
                 "team leave @a",
 
-                "effect give @a resistance 30 4 true",
-
                 "flexborder set 1750 1750 -1750 -1750 dannys-aot:paradis",
                 "execute in dannys-aot:paradis run spreadplayers 0 0 1700 1700 false @a",
                 "execute in dannys-aot:paradis run flexborder start_full 300 200 30 30 100",
                 "execute in dannys-aot:paradis run worldborder center 0 0",
-                "flexborder hploss 0"
+                "flexborder hploss 0",
+
+                "effect give @a resistance 30 4 true",
+                "effect give @a minecraft:slow_falling 15 2 true",
+//                "execute in dannys-aot:paradis run tp @a ~ 170 ~"
+                "execute as @a at @s run tp @s ~ 170 ~"
 
 
         );
+
+        for (String command : commands) {
+            System.out.println("Running command: [" + command + "]");
+            server.getCommandManager().executeWithPrefix(server.getCommandSource().withSilent(), command);
+        }
 
         for (ServerPlayerEntity p : server.getPlayerManager().getPlayerList()) {
             p.sendMessage(
                     Text.literal("You have thirty seconds of invulnerability before combat begins, and five minutes before the border begins to shrink. Good luck!")
                             .formatted(Formatting.GOLD, Formatting.BOLD)
             );
-
-            for (String command : commands) {
-                System.out.println("Running command: [" + command + "]");
-                server.getCommandManager().executeWithPrefix(server.getCommandSource().withSilent(), command);
-            }
+        }
         }
     }
-}
+

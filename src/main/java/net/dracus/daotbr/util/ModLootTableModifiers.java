@@ -36,23 +36,28 @@ public class ModLootTableModifiers {
                                 .apply(SetCountLootFunction.builder(UniformLootNumberProvider.create(2, 4))));
                 LootPool.Builder poolBuilder1 = LootPool.builder()
                         .rolls(ConstantLootNumberProvider.create(1))
-                        .conditionally(RandomChanceLootCondition.builder(0.008f))
+                        .conditionally(RandomChanceLootCondition.builder(0.002f))
                         .with(ItemEntry.builder(ModItems.SHIFTER_AIRDROP));
 
                 LootPool.Builder poolBuilder2 = LootPool.builder()
                         .rolls(ConstantLootNumberProvider.create(1))
-                        .conditionally(RandomChanceLootCondition.builder(0.004f))
+                        .conditionally(RandomChanceLootCondition.builder(0.0009f))
                         .with(ItemEntry.builder(ModItems.ACKERMAN_SYRINGE));
 
                 LootPool.Builder poolBuilder3 = LootPool.builder()
                         .rolls(ConstantLootNumberProvider.create(1))
-                        .conditionally(RandomChanceLootCondition.builder(0.09f))
+                        .conditionally(RandomChanceLootCondition.builder(0.03f))
                         .with(ItemEntry.builder(ModItems.THUNDER_SPEAR_PACKAGE));
 
                 LootPool.Builder poolBuilder4 = LootPool.builder()
                         .rolls(ConstantLootNumberProvider.create(1))
                         .conditionally(RandomChanceLootCondition.builder(0.07f))
                         .with(ItemEntry.builder(ModItems.APG_PACKAGE));
+
+                LootPool.Builder poolBuilder11 = LootPool.builder()
+                        .rolls(ConstantLootNumberProvider.create(1))
+                        .conditionally(RandomChanceLootCondition.builder(0.02f))
+                        .with(ItemEntry.builder(ModItems.SHIELD_POTION));
 
 
 
@@ -98,6 +103,7 @@ public class ModLootTableModifiers {
                 tableBuilder.pool(poolBuilder8);
                 tableBuilder.pool(poolBuilder9);
                 tableBuilder.pool(poolBuilder10);
+                tableBuilder.pool(poolBuilder11);
             }
         });
     }

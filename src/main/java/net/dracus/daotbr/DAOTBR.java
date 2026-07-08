@@ -5,7 +5,6 @@ import net.dracus.daotbr.util.BRFeatures.FlareGunListener;
 import net.dracus.daotbr.item.ModItemGroups;
 import net.dracus.daotbr.item.ModItems;
 import net.dracus.daotbr.util.BRFeatures.GameQueueManager;
-import net.dracus.daotbr.util.BRFeatures.LobbyManager;
 import net.dracus.daotbr.util.ModLootTableModifiers;
 import net.fabricmc.api.ModInitializer;
 
@@ -15,6 +14,7 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.world.GameMode;
+import net.dracus.daotbr.util.BRFeatures.GameStageManager;
 
 import net.minecraft.util.Identifier;
 
@@ -38,17 +38,14 @@ public class DAOTBR implements ModInitializer {
 
 		ModLootTableModifiers.modifyLootTables();
 
-		LobbyManager.register();
 		GameQueueManager.register();
+		GameStageManager.register();
 
 		ShifterAirdropManager.init();
 		ShifterAirdropManager.initWaypointScheduler();
 		FlareGunListener.register();
 
 		ModLootTableModifiers.modifyLootTables();
-
-		LobbyManager.register();
-		GameQueueManager.register();
 
 
 	}
@@ -63,7 +60,6 @@ public class DAOTBR implements ModInitializer {
 
 				String name = player.getName().getString();
 				server.getCommandManager().executeWithPrefix(server.getCommandSource().withSilent(), "team leave " + name);
-				player.changeGameMode(GameMode.SPECTATOR);
 
 //				double targetY = player.getY();
 				server.getCommandManager().executeWithPrefix(server.getCommandSource().withSilent(),
@@ -72,6 +68,8 @@ public class DAOTBR implements ModInitializer {
 				// TP wasn't good enough, had to set respawn
 				server.getCommandManager().executeWithPrefix(server.getCommandSource().withSilent(),
 						"execute in dannys-aot:paradis run spawnpoint " + name + " 0 " + 100 + " 0");
+
+				GameStageManager.onPlayerEliminated(player);
 			}
 		});
 
