@@ -103,6 +103,30 @@ public class GameStageManager {
         }
     }
 
+    //boss bar showing which stage we're in (for testing)
+    private static final ServerBossBar stageBossBar = new ServerBossBar(
+            Text.literal("Stage: Lobby"),
+            BossBar.Color.GREEN,
+            BossBar.Style.PROGRESS
+    );
+
+    private static void updateBossBar() {
+        switch (currentStage) {
+            case LOBBY -> {
+                stageBossBar.setName(Text.literal("Stage: Lobby"));
+                stageBossBar.setColor(BossBar.Color.GREEN);
+            }
+            case ARENA -> {
+                stageBossBar.setName(Text.literal("Stage: Battle Royale In Progress"));
+                stageBossBar.setColor(BossBar.Color.RED);
+            }
+            case ENDED -> {
+                stageBossBar.setName(Text.literal("Stage: Match Ended"));
+                stageBossBar.setColor(BossBar.Color.YELLOW);
+            }
+        }
+    }
+
     // ---- lobby helpers ----
     public static boolean isInLobby(World world) {
         return world.getRegistryKey().equals(LOBBY_DIMENSION);
@@ -206,30 +230,6 @@ public class GameStageManager {
 
         returnTimerActive = true;
         returnAtMillis = System.currentTimeMillis() + (RETURN_TO_LOBBY_SECONDS * 1000L);
-    }
-
-    //boss bar showing which stage we're in (for testing)
-    private static final ServerBossBar stageBossBar = new ServerBossBar(
-            Text.literal("Stage: Lobby"),
-            BossBar.Color.GREEN,
-            BossBar.Style.PROGRESS
-    );
-
-    private static void updateBossBar() {
-        switch (currentStage) {
-            case LOBBY -> {
-                stageBossBar.setName(Text.literal("Stage: Lobby"));
-                stageBossBar.setColor(BossBar.Color.GREEN);
-            }
-            case ARENA -> {
-                stageBossBar.setName(Text.literal("Stage: Battle Royale In Progress"));
-                stageBossBar.setColor(BossBar.Color.RED);
-            }
-            case ENDED -> {
-                stageBossBar.setName(Text.literal("Stage: Match Ended"));
-                stageBossBar.setColor(BossBar.Color.YELLOW);
-            }
-        }
     }
 
     private static void resetToLobby(MinecraftServer server) {
