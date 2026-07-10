@@ -63,7 +63,7 @@ public class ShieldPotionItem extends Item {
         if (!world.isClient() && user instanceof ServerPlayerEntity serverPlayer) {
             float currentAbsorption = serverPlayer.getAbsorptionAmount();
             float maxAbsorption = 20.0f;
-            float absorptionPerUse = 4.0f;
+            float absorptionPerUse = 8.0f;
 
             EntityAttributeInstance maxAbsorptionAttr = serverPlayer.getAttributeInstance(EntityAttributes.GENERIC_MAX_ABSORPTION);
             if (maxAbsorptionAttr != null && maxAbsorptionAttr.getBaseValue() < maxAbsorption) {

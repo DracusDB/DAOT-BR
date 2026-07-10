@@ -4,10 +4,12 @@ import com.mojang.brigadier.CommandDispatcher;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.scoreboard.Team;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
@@ -31,6 +33,7 @@ public class GameQueueManager {
     public static void register() {
         CommandRegistrationCallback.EVENT.register(GameQueueManager::registerCommands);
         ServerTickEvents.END_SERVER_TICK.register(GameQueueManager::onServerTick);
+        ServerPlayConnectionEvents.DISCONNECT.register(GameQueueManager::onPlayerDisconnect);
     }
 
     private static void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher,
@@ -38,54 +41,54 @@ public class GameQueueManager {
                                          net.minecraft.server.command.CommandManager.RegistrationEnvironment env) {
 
         dispatcher.register(literal("daotbr")
-                        .then(literal("ready")
+                .then(literal("ready")
 
-                .executes(ctx -> {
-            ServerPlayerEntity player = ctx.getSource().getPlayer();
-            if (player == null) return 0;
+                        .executes(ctx -> {
+                            ServerPlayerEntity player = ctx.getSource().getPlayer();
+                            if (player == null) return 0;
 
-            if (!GameStageManager.isInLobby(player.getWorld())) {
-                player.sendMessage(Text.literal("You must be in the lobby to ready up.").formatted(Formatting.RED), false);
-                return 0;
-            }
+                            if (!GameStageManager.isInLobby(player.getWorld())) {
+                                player.sendMessage(Text.literal("You must be in the lobby to ready up.").formatted(Formatting.RED), false);
+                                return 0;
+                            }
 
-            readyPlayers.add(player.getUuid());
+                            readyPlayers.add(player.getUuid());
 
-            Scoreboard scoreboard = ctx.getSource().getServer().getScoreboard();
-            Team readyTeam = getOrCreateReadyTeam(ctx.getSource().getServer());
-            scoreboard.addScoreHolderToTeam(player.getNameForScoreboard(), readyTeam);
+                            Scoreboard scoreboard = ctx.getSource().getServer().getScoreboard();
+                            Team readyTeam = getOrCreateReadyTeam(ctx.getSource().getServer());
+                            scoreboard.addScoreHolderToTeam(player.getNameForScoreboard(), readyTeam);
 
-            broadcastStatus(ctx.getSource().getServer());
-            checkReadyState(ctx.getSource().getServer());
-            return 1;
-        })));
+                            broadcastStatus(ctx.getSource().getServer());
+                            checkReadyState(ctx.getSource().getServer());
+                            return 1;
+                        })));
 
         dispatcher.register(literal("daotbr")
-                        .then(literal("unready")
+                .then(literal("unready")
 
-                .executes(ctx -> {
-            ServerPlayerEntity player = ctx.getSource().getPlayer();
-            if (player == null) return 0;
+                        .executes(ctx -> {
+                            ServerPlayerEntity player = ctx.getSource().getPlayer();
+                            if (player == null) return 0;
 
-            if (!readyPlayers.contains(player.getUuid())) {
-                player.sendMessage(Text.literal("You are not readied up!").formatted(Formatting.RED), false);
+                            if (!readyPlayers.contains(player.getUuid())) {
+                                player.sendMessage(Text.literal("You are not readied up!").formatted(Formatting.RED), false);
 
-                return 0;
-            }
+                                return 0;
+                            }
 
-            readyPlayers.remove(player.getUuid());
+                            readyPlayers.remove(player.getUuid());
 
-            Scoreboard scoreboard = ctx.getSource().getServer().getScoreboard();
-            scoreboard.removeScoreHolderFromTeam(player.getNameForScoreboard(), scoreboard.getTeam(READY_TEAM_NAME));
+                            Scoreboard scoreboard = ctx.getSource().getServer().getScoreboard();
+                            scoreboard.removeScoreHolderFromTeam(player.getNameForScoreboard(), scoreboard.getTeam(READY_TEAM_NAME));
 
-            if (countdownActive) {
-                countdownActive = false;
-                ctx.getSource().getServer().getPlayerManager().broadcast(
-                        Text.literal("Countdown cancelled - a player unreadied.").formatted(Formatting.YELLOW), false);
-            }
-            broadcastStatus(ctx.getSource().getServer());
-            return 1;
-        })));
+                            if (countdownActive) {
+                                countdownActive = false;
+                                ctx.getSource().getServer().getPlayerManager().broadcast(
+                                        Text.literal("Countdown cancelled - a player unreadied.").formatted(Formatting.YELLOW), false);
+                            }
+                            broadcastStatus(ctx.getSource().getServer());
+                            return 1;
+                        })));
 
         dispatcher.register(literal("daotbr")
                 .then(literal("start")
@@ -149,6 +152,30 @@ public class GameQueueManager {
         }
     }
 
+    private static void onPlayerDisconnect(ServerPlayNetworkHandler handler, MinecraftServer server) {
+        ServerPlayerEntity player = handler.getPlayer();
+
+        if (!readyPlayers.contains(player.getUuid())) {
+            return;
+        }
+
+        readyPlayers.remove(player.getUuid());
+
+        Scoreboard scoreboard = server.getScoreboard();
+        Team readyTeam = scoreboard.getTeam(READY_TEAM_NAME);
+        if (readyTeam != null) {
+            scoreboard.removeScoreHolderFromTeam(player.getNameForScoreboard(), readyTeam);
+        }
+
+        if (countdownActive) {
+            countdownActive = false;
+            server.getPlayerManager().broadcast(
+                    Text.literal("Countdown cancelled - a player disconnected.").formatted(Formatting.YELLOW), false);
+        }
+
+        broadcastStatus(server);
+    }
+
     private static int getLobbyPlayerCount(MinecraftServer server) {
         ServerWorld lobbyWorld = server.getWorld(GameStageManager.LOBBY_DIMENSION);
         if (lobbyWorld == null) return 0;
@@ -191,6 +218,13 @@ public class GameQueueManager {
         GameStageManager.beginArenaStage(new HashSet<>(server.getPlayerManager().getPlayerList()));
 
         List<String> commands = List.of(
+                //clear inventory and give everyone hp and hunger back
+                "clear @a",
+                "effect give @a minecraft:instant_health 1 5",
+                "effect give @a minecraft:saturation 1 5",
+                "team leave @a",
+
+
                 //sets all players to eldian and resets shifters
                 "daot bloodline remove @a ackerman",
                 "daot bloodline remove @a royal",
@@ -260,7 +294,6 @@ public class GameQueueManager {
 
                 "effect give @a resistance 30 4 true",
                 "effect give @a minecraft:slow_falling 15 2 true",
-//                "execute in dannys-aot:paradis run tp @a ~ 170 ~"
                 "execute as @a at @s run tp @s ~ 170 ~"
 
 
@@ -272,11 +305,17 @@ public class GameQueueManager {
         }
 
         for (ServerPlayerEntity p : server.getPlayerManager().getPlayerList()) {
+            String playerName = p.getName().getString();
+            String giveCommand = "sk give " + playerName + " odm";
+            server.getCommandManager().executeWithPrefix(server.getCommandSource().withSilent(), giveCommand);
+        }
+
+        for (ServerPlayerEntity p : server.getPlayerManager().getPlayerList()) {
             p.sendMessage(
                     Text.literal("You have thirty seconds of invulnerability before combat begins, and five minutes before the border begins to shrink. Good luck!")
                             .formatted(Formatting.GOLD, Formatting.BOLD)
             );
         }
-        }
     }
+}
 
