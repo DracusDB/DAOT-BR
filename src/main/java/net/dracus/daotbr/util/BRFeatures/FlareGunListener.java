@@ -13,12 +13,16 @@ import net.minecraft.registry.Registries;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.world.World;
 
 public class FlareGunListener {
+
+
 
     public static void register() {
         UseItemCallback.EVENT.register((PlayerEntity player, World world, Hand hand) -> {
@@ -39,6 +43,8 @@ public class FlareGunListener {
                 return TypedActionResult.pass(stack);
             }
 
+            int nearbyPlayerCount = 0;
+
             MinecraftServer server = serverPlayer.getServer();
             if (server != null) {
                 ServerWorld serverWorld = (ServerWorld) world;
@@ -50,7 +56,15 @@ public class FlareGunListener {
 
                     if (nearby.getPos().distanceTo(serverPlayer.getPos()) <= 150) {
                         nearby.addStatusEffect(new StatusEffectInstance(StatusEffects.GLOWING, 150, 0, false, true));
+                        nearbyPlayerCount++;
                     }
+                }
+
+                if (nearbyPlayerCount > 0) {
+                    String playerWord = nearbyPlayerCount == 1 ? "player" : "players";
+                    serverPlayer.sendMessage(
+                            Text.literal(nearbyPlayerCount + playerWord + " have been marked by your flare.").formatted(Formatting.GREEN)
+                    );
                 }
             }
 

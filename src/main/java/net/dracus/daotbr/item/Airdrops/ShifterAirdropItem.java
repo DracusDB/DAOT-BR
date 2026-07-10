@@ -93,7 +93,7 @@ public class ShifterAirdropItem extends Item {
                         serverWorld.spawnEntity(parachute);
 
                         // Register both entities together
-                        ShifterAirdropManager.register(crate, parachute, targetPos.getY());
+                        ShifterAirdropManager.register(crate, parachute, targetPos.getY(), 45);
                     }
 
                     String dimensionId = serverWorld.getRegistryKey().getValue().toString();
@@ -103,7 +103,7 @@ public class ShifterAirdropItem extends Item {
                     String createCommand = "jm waypoint create " + waypointName + " " + dimensionId + " " + location + " aqua @a true";
                     server.getCommandManager().executeWithPrefix(server.getCommandSource(), createCommand);
 
-                    ShifterAirdropManager.scheduleWaypointRemoval(server, waypointName, 90 * 20); // 90 seconds
+                    ShifterAirdropManager.scheduleWaypointRemoval(server, waypointName, 90); // 90 seconds
                 }
 
                 for (ServerPlayerEntity p : server.getPlayerManager().getPlayerList()) {

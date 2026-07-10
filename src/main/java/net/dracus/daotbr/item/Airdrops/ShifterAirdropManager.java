@@ -22,23 +22,27 @@ public class ShifterAirdropManager {
     private static final List<FallingCrate> activateCrates = new ArrayList<>();
     private static final Random RANDOM = new Random();
 
-    public static void register(DisplayEntity.BlockDisplayEntity entity, DisplayEntity.BlockDisplayEntity parachute, double targetY) {
-        double distance = entity.getY() - targetY;
-        double fallSpeed = distance / (45 * 20);
-        activateCrates.add(new FallingCrate(entity, parachute, targetY, fallSpeed));
+    public static void register(DisplayEntity.BlockDisplayEntity entity, DisplayEntity.BlockDisplayEntity parachute, double targetY, int fallDurationSeconds) {
+        double startY = entity.getY();
+        long durationMillis = fallDurationSeconds * 1000L;
+        activateCrates.add(new FallingCrate(entity, parachute, startY, targetY, durationMillis));
     }
 
     private static class FallingCrate {
         final DisplayEntity.BlockDisplayEntity entity;
         final DisplayEntity.BlockDisplayEntity parachute;
+        final double startY;
         final double targetY;
-        final double fallSpeed;
+        final long startTimeMillis;
+        final long durationMillis;
 
-        FallingCrate(DisplayEntity.BlockDisplayEntity entity, DisplayEntity.BlockDisplayEntity parachute, double targetY, double fallSpeed) {
+        FallingCrate(DisplayEntity.BlockDisplayEntity entity, DisplayEntity.BlockDisplayEntity parachute, double startY, double targetY, long durationMillis) {
             this.entity = entity;
             this.parachute = parachute;
+            this.startY = startY;
             this.targetY = targetY;
-            this.fallSpeed = fallSpeed;
+            this.startTimeMillis = System.currentTimeMillis();
+            this.durationMillis = durationMillis;
         }
     }
 
@@ -50,8 +54,8 @@ public class ShifterAirdropManager {
 
     private static final List<ScheduledRemoval> scheduledRemovals = new ArrayList<>();
 
-    public static void scheduleWaypointRemoval(MinecraftServer server, String waypointName, int delayTicks) {
-        scheduledRemovals.add(new ScheduledRemoval(server, waypointName, delayTicks));
+    public static void scheduleWaypointRemoval(MinecraftServer server, String waypointName, int delaySeconds) {
+        scheduledRemovals.add(new ScheduledRemoval(server, waypointName, delaySeconds * 1000L));
     }
 
     public static void initWaypointScheduler() {
@@ -59,9 +63,9 @@ public class ShifterAirdropManager {
             Iterator<ScheduledRemoval> iterator = scheduledRemovals.iterator();
             while (iterator.hasNext()) {
                 ScheduledRemoval task = iterator.next();
-                task.ticksRemaining--;
+                long elapsed = System.currentTimeMillis() - task.startTimeMillis;
 
-                if (task.ticksRemaining <= 0) {
+                if (elapsed >= task.durationMillis) {
                     String deleteCommand = "jm waypoint delete " + task.waypointName + " @a true";
                     System.out.println("Attempting to delete waypoint: [" + deleteCommand + "]");
                     task.server.getCommandManager().executeWithPrefix(task.server.getCommandSource(), deleteCommand);
@@ -74,12 +78,14 @@ public class ShifterAirdropManager {
     private static class ScheduledRemoval {
         final MinecraftServer server;
         final String waypointName;
-        int ticksRemaining;
+        final long startTimeMillis;
+        final long durationMillis;
 
-        ScheduledRemoval(MinecraftServer server, String waypointName, int ticksRemaining) {
+        ScheduledRemoval(MinecraftServer server, String waypointName, long durationMillis) {
             this.server = server;
             this.waypointName = waypointName;
-            this.ticksRemaining = ticksRemaining;
+            this.startTimeMillis = System.currentTimeMillis();
+            this.durationMillis = durationMillis;
         }
     }
 
@@ -98,9 +104,11 @@ public class ShifterAirdropManager {
                     continue;
                 }
 
-                double newY = crate.entity.getY() - crate.fallSpeed;
+                long elapsed = System.currentTimeMillis() - crate.startTimeMillis;
+                double progress = Math.min(1.0, (double) elapsed / crate.durationMillis);
+                double newY = crate.startY + (crate.targetY - crate.startY) * progress;
 
-                if (newY <= crate.targetY) {
+                if (progress >= 1.0) {
                     BlockPos landPos = new BlockPos(
                             (int) Math.floor(crate.entity.getX()),
                             (int) crate.targetY,

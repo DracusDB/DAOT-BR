@@ -233,16 +233,6 @@ public class GameStageManager {
     }
 
     private static void resetToLobby(MinecraftServer server) {
-        // clear out anything left behind in the arena: dropped items, corpses,
-        // stray titans/projectiles - anything that isn't a player
-
-        List<String> commands = List.of(
-                "execute in dannys-aot:paradis run kill @e[type=!minecraft:player]");
-
-        for (String command : commands) {
-            System.out.println("Running command: [" + command + "]");
-            server.getCommandManager().executeWithPrefix(server.getCommandSource(), command);
-        }
 
         // remove the battle teams created at match start
         List<String> teamsToRemove = List.of(
@@ -263,6 +253,24 @@ public class GameStageManager {
         alivePlayers.clear();
         currentStage = GameStage.LOBBY;
         updateBossBar();
+
+        List<String> commands = List.of(
+                "execute in dannys-aot:paradis run kill @e[type=!minecraft:player]",
+                "clear @a",
+                "daot shifter reset",
+                "daot bloodline set @a eldian"
+        );
+
+        for (String command : commands) {
+            System.out.println("Running command: [" + command + "]");
+            server.getCommandManager().executeWithPrefix(server.getCommandSource(), command);
+        }
+
+        for (ServerPlayerEntity p : server.getPlayerManager().getPlayerList()) {
+            String playerName = p.getName().getString();
+            String giveCommand = "sk give " + playerName + " odm";
+            server.getCommandManager().executeWithPrefix(server.getCommandSource().withSilent(), giveCommand);
+        }
 
         server.getPlayerManager().broadcast(
                 Text.literal("Welcome to the lobby! Use /daotbr ready to ready up!").formatted(Formatting.GREEN), false);
