@@ -258,19 +258,16 @@ public class GameStageManager {
                 "execute in dannys-aot:paradis run kill @e[type=!minecraft:player]",
                 "clear @a",
                 "daot shifter reset",
-                "daot bloodline set @a eldian"
+                "daot bloodline set @a eldian",
+                "sk reset",
+                "execute as @a run sk choose odm"
         );
 
         for (String command : commands) {
             System.out.println("Running command: [" + command + "]");
-            server.getCommandManager().executeWithPrefix(server.getCommandSource(), command);
+            server.getCommandManager().executeWithPrefix(server.getCommandSource().withSilent(), command);
         }
 
-        for (ServerPlayerEntity p : server.getPlayerManager().getPlayerList()) {
-            String playerName = p.getName().getString();
-            String giveCommand = "sk give " + playerName + " odm";
-            server.getCommandManager().executeWithPrefix(server.getCommandSource().withSilent(), giveCommand);
-        }
 
         server.getPlayerManager().broadcast(
                 Text.literal("Welcome to the lobby! Use /daotbr ready to ready up!").formatted(Formatting.GREEN), false);

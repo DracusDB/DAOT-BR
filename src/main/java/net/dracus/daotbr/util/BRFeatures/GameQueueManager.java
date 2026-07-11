@@ -206,6 +206,8 @@ public class GameQueueManager {
         if (GameStageManager.isInArenaStage()) {
             return;
         }
+
+
         Scoreboard scoreboard = server.getScoreboard();
         Team readyTeam = scoreboard.getTeam(READY_TEAM_NAME);
         if (readyTeam != null) {
@@ -217,13 +219,20 @@ public class GameQueueManager {
 
         GameStageManager.beginArenaStage(new HashSet<>(server.getPlayerManager().getPlayerList()));
 
-        List<String> commands = List.of(
+        List<String> introCommands = List.of(
                 //clear inventory and give everyone hp and hunger back
                 "clear @a",
                 "effect give @a minecraft:instant_health 1 5",
                 "effect give @a minecraft:saturation 1 5",
-                "team leave @a",
+                "sk reset"
+        );
 
+        for (String command : introCommands) {
+            System.out.println("Running command: [" + introCommands + "]");
+            server.getCommandManager().executeWithPrefix(server.getCommandSource().withSilent(), command);
+        }
+
+        List<String> commands = List.of(
 
                 //sets all players to eldian and resets shifters
                 "daot bloodline remove @a ackerman",
@@ -234,6 +243,9 @@ public class GameQueueManager {
 
                 //sets all players to adventure mode so they can't break the map and use "cheese" strategies like hiding underground and crafting items
                 "gamemode adventure @a",
+
+                //resets kits
+                "execute as @a run sk choose odm",
 
                 //sets preferred gamerules as intended
                 "gamerule villagersSpawnWithPowers false",
@@ -302,12 +314,6 @@ public class GameQueueManager {
         for (String command : commands) {
             System.out.println("Running command: [" + command + "]");
             server.getCommandManager().executeWithPrefix(server.getCommandSource().withSilent(), command);
-        }
-
-        for (ServerPlayerEntity p : server.getPlayerManager().getPlayerList()) {
-            String playerName = p.getName().getString();
-            String giveCommand = "sk give " + playerName + " odm";
-            server.getCommandManager().executeWithPrefix(server.getCommandSource().withSilent(), giveCommand);
         }
 
         for (ServerPlayerEntity p : server.getPlayerManager().getPlayerList()) {
