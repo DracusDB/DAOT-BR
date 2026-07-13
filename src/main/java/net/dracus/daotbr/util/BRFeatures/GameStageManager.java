@@ -97,10 +97,23 @@ public class GameStageManager {
     private static void onServerTick(MinecraftServer server) {
         if (!returnTimerActive) return;
 
+        long remainingMillis = returnAtMillis - System.currentTimeMillis();
+
         if (System.currentTimeMillis() >= returnAtMillis) {
             returnTimerActive = false;
             resetToLobby(server);
+            return;
         }
+
+        int remainingSeconds = (int) Math.ceil(remainingMillis / 1000.0);
+
+        if (remainingSeconds != lastAnnouncedReturnSecond
+            && (remainingSeconds <= 5 || remainingSeconds % 10 == 0)) {
+        lastAnnouncedReturnSecond = remainingSeconds;
+        server.getPlayerManager().broadcast(
+                Text.literal("Returning to lobby in " + remainingSeconds + "...").formatted(Formatting.GOLD), false);
+        }
+
     }
 
     //boss bar showing which stage we're in (for testing)
@@ -211,6 +224,8 @@ public class GameStageManager {
         }
     }
 
+    private static int lastAnnouncedReturnSecond = -1;
+
     private static void endBattleRoyale(MinecraftServer server, ServerPlayerEntity winner) {
         currentStage = GameStage.ENDED;
         updateBossBar();
@@ -225,8 +240,12 @@ public class GameStageManager {
             player.networkHandler.sendPacket(new TitleS2CPacket(titleText));
         }
 
+        returnTimerActive = true;
+        returnAtMillis = System.currentTimeMillis() + (RETURN_TO_LOBBY_SECONDS * 1000L);
+        lastAnnouncedReturnSecond = RETURN_TO_LOBBY_SECONDS;
+
         server.getPlayerManager().broadcast(
-                Text.literal("Returning to lobby in " + RETURN_TO_LOBBY_SECONDS + " seconds...").formatted(Formatting.AQUA), false);
+                Text.literal("Returning to lobby in " + RETURN_TO_LOBBY_SECONDS + " seconds...").formatted(Formatting.GOLD), false);
 
         returnTimerActive = true;
         returnAtMillis = System.currentTimeMillis() + (RETURN_TO_LOBBY_SECONDS * 1000L);
@@ -258,19 +277,16 @@ public class GameStageManager {
                 "execute in dannys-aot:paradis run kill @e[type=!minecraft:player]",
                 "clear @a",
                 "daot shifter reset",
-                "daot bloodline set @a eldian"
+                "daot bloodline set @a eldian",
+                "sk reset",
+                "execute as @a run sk choose odm"
         );
 
         for (String command : commands) {
             System.out.println("Running command: [" + command + "]");
-            server.getCommandManager().executeWithPrefix(server.getCommandSource(), command);
+            server.getCommandManager().executeWithPrefix(server.getCommandSource().withSilent(), command);
         }
 
-        for (ServerPlayerEntity p : server.getPlayerManager().getPlayerList()) {
-            String playerName = p.getName().getString();
-            String giveCommand = "sk give " + playerName + " odm";
-            server.getCommandManager().executeWithPrefix(server.getCommandSource().withSilent(), giveCommand);
-        }
 
         server.getPlayerManager().broadcast(
                 Text.literal("Welcome to the lobby! Use /daotbr ready to ready up!").formatted(Formatting.GREEN), false);

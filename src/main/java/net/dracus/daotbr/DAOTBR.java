@@ -41,13 +41,6 @@ public class DAOTBR implements ModInitializer {
 		GameQueueManager.register();
 		GameStageManager.register();
 
-		ShifterAirdropManager.init();
-		ShifterAirdropManager.initWaypointScheduler();
-		FlareGunListener.register();
-
-		ModLootTableModifiers.modifyLootTables();
-
-
 	}
 
 

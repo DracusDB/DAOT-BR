@@ -28,7 +28,8 @@ public class GameQueueManager {
 
     private static final Set<UUID> readyPlayers = new ObjectOpenHashSet<>();
     private static boolean countdownActive = false;
-    private static int countdownTicksRemaining = 0;
+    private static long countdownEndTimeMillis = 0L;
+    private static int lastBroadcastSecond = -1;
 
     public static void register() {
         CommandRegistrationCallback.EVENT.register(GameQueueManager::registerCommands);
@@ -146,7 +147,8 @@ public class GameQueueManager {
         //Everyone in lobby is ready:
         if (!countdownActive) {
             countdownActive = true;
-            countdownTicksRemaining = COUNTDOWN_SECONDS * 40;
+            countdownEndTimeMillis = System.currentTimeMillis() + (COUNTDOWN_SECONDS * 1000L);
+            lastBroadcastSecond = -1;
             server.getPlayerManager().broadcast(
                     Text.literal("All players are ready! Beginning match in " + COUNTDOWN_SECONDS + " seconds").formatted(Formatting.GREEN), false);
         }
@@ -185,27 +187,30 @@ public class GameQueueManager {
     private static void onServerTick(MinecraftServer server) {
         if (!countdownActive) return;
 
-        if (countdownTicksRemaining % 40 == 0) {
-            int secondsLeft = countdownTicksRemaining / 40;
-            if (secondsLeft <= 5 || secondsLeft % 5 == 0) {
-                server.getPlayerManager().broadcast(
-                        Text.literal("Battle royale starts in " + secondsLeft).formatted(Formatting.GOLD), false);
-            }
-        }
+        long remainingMillis = countdownEndTimeMillis - System.currentTimeMillis();
 
-        countdownTicksRemaining--;
-
-        if (countdownTicksRemaining <= 0) {
+        if (remainingMillis <= 0){
             countdownActive = false;
             readyPlayers.clear();
             startBattleRoyale(server);
+            return;
         }
-    }
+
+        int secondsLeft = (int) Math.ceil(remainingMillis / 1000.0);
+
+        if (secondsLeft != lastBroadcastSecond && (secondsLeft <= 5 || secondsLeft % 5 == 0)) {
+            lastBroadcastSecond = secondsLeft;
+            server.getPlayerManager().broadcast(
+                    Text.literal("Battle Royale Starts In " + secondsLeft).formatted(Formatting.GOLD), false);
+        }
+        }
 
     public static void startBattleRoyale(MinecraftServer server) {
         if (GameStageManager.isInArenaStage()) {
             return;
         }
+
+
         Scoreboard scoreboard = server.getScoreboard();
         Team readyTeam = scoreboard.getTeam(READY_TEAM_NAME);
         if (readyTeam != null) {
@@ -217,13 +222,19 @@ public class GameQueueManager {
 
         GameStageManager.beginArenaStage(new HashSet<>(server.getPlayerManager().getPlayerList()));
 
-        List<String> commands = List.of(
+        List<String> introCommands = List.of(
                 //clear inventory and give everyone hp and hunger back
                 "clear @a",
-                "effect give @a minecraft:instant_health 1 5",
-                "effect give @a minecraft:saturation 1 5",
-                "team leave @a",
+                "sk reset",
+                "effect clear @a"
+        );
 
+        for (String command : introCommands) {
+            System.out.println("Running command: [" + command + "]");
+            server.getCommandManager().executeWithPrefix(server.getCommandSource().withSilent(), command);
+        }
+
+        List<String> commands = List.of(
 
                 //sets all players to eldian and resets shifters
                 "daot bloodline remove @a ackerman",
@@ -232,8 +243,13 @@ public class GameQueueManager {
                 "daot bloodline set @a eldian",
                 "daot shifter reset",
 
-                //sets all players to adventure mode so they can't break the map and use "cheese" strategies like hiding underground and crafting items
+                //sets all players to adventure mode so they can't break the map and use "cheese" strategies like hiding underground and crafting items, restores health and hunger
                 "gamemode adventure @a",
+                "effect give @a minecraft:instant_health 1 5",
+                "effect give @a minecraft:saturation 1 5",
+
+                //resets kits
+                "execute as @a run sk choose odm",
 
                 //sets preferred gamerules as intended
                 "gamerule villagersSpawnWithPowers false",
@@ -272,7 +288,7 @@ public class GameQueueManager {
                 "team add Beast",
                 "team modify Beast color red",
                 "team add Cart",
-                "team modify Cart gray",
+                "team modify Cart color gray",
                 "team add Colossal",
                 "team modify Colossal color dark_red",
                 "team add Female",
@@ -294,7 +310,7 @@ public class GameQueueManager {
 
                 "effect give @a resistance 30 4 true",
                 "effect give @a minecraft:slow_falling 15 2 true",
-                "execute as @a at @s run tp @s ~ 170 ~"
+                "execute as @a at @s run tp @s ~ 200 ~"
 
 
         );
@@ -302,12 +318,6 @@ public class GameQueueManager {
         for (String command : commands) {
             System.out.println("Running command: [" + command + "]");
             server.getCommandManager().executeWithPrefix(server.getCommandSource().withSilent(), command);
-        }
-
-        for (ServerPlayerEntity p : server.getPlayerManager().getPlayerList()) {
-            String playerName = p.getName().getString();
-            String giveCommand = "sk give " + playerName + " odm";
-            server.getCommandManager().executeWithPrefix(server.getCommandSource().withSilent(), giveCommand);
         }
 
         for (ServerPlayerEntity p : server.getPlayerManager().getPlayerList()) {
