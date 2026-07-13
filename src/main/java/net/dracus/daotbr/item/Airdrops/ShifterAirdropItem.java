@@ -93,7 +93,7 @@ public class ShifterAirdropItem extends Item {
                         serverWorld.spawnEntity(parachute);
 
                         // Register both entities together
-                        ShifterAirdropManager.register(crate, parachute, targetPos.getY(), 45);
+                        ShifterAirdropManager.register(crate, parachute, targetPos.getY(), 60);
                     }
 
                     String dimensionId = serverWorld.getRegistryKey().getValue().toString();
@@ -111,7 +111,7 @@ public class ShifterAirdropItem extends Item {
                             Text.literal(playerName + " has summoned a shifter syringe airdrop at "
                                             + targetPos.getX() + " "
                                             + targetPos.getZ()
-                                            + "! It will land in 45 seconds!")
+                                            + "! It will land in 60 seconds!")
                                     .formatted(Formatting.AQUA, Formatting.ITALIC, Formatting.BOLD)
                     );
                 }
