@@ -50,20 +50,28 @@ public class FlareGunListener {
                 ServerWorld serverWorld = (ServerWorld) world;
 
                 for (ServerPlayerEntity nearby : serverWorld.getPlayers()) {
-                    if (nearby == serverPlayer) {
+                    if (nearby == serverPlayer || nearby.isSpectator()) {
                         continue;
                     }
 
-                    if (nearby.getPos().distanceTo(serverPlayer.getPos()) <= 150) {
-                        nearby.addStatusEffect(new StatusEffectInstance(StatusEffects.GLOWING, 150, 0, false, true));
+                    if (nearby.getPos().distanceTo(serverPlayer.getPos()) <= 200) {
+                        nearby.addStatusEffect(new StatusEffectInstance(StatusEffects.GLOWING, 200, 0, false, true));
                         nearbyPlayerCount++;
                     }
+
                 }
 
                 if (nearbyPlayerCount > 0) {
-                    String playerWord = nearbyPlayerCount == 1 ? "player" : "players";
+                    String playerWord = nearbyPlayerCount == 1 ? " player" : " players";
+                    String hasHave = nearbyPlayerCount == 1 ? " has" : " have";
                     serverPlayer.sendMessage(
-                            Text.literal(nearbyPlayerCount + playerWord + " have been marked by your flare.").formatted(Formatting.GREEN)
+                            Text.literal(nearbyPlayerCount + playerWord + hasHave + " been marked by your flare.").formatted(Formatting.GREEN)
+                    );
+                }
+
+                else {
+                    serverPlayer.sendMessage(
+                            Text.literal("Your flare has not marked any players.").formatted(Formatting.RED)
                     );
                 }
             }
