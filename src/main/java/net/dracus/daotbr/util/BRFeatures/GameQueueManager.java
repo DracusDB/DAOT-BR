@@ -279,6 +279,7 @@ public class GameQueueManager {
                 "gamerule doLimitedCrafting true",
 
                 "time set day",
+                "gamerule doDaylightCycle false",
 
                 //creates teams
                 "team add Attack",
