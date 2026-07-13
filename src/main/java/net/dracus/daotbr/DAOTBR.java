@@ -53,8 +53,6 @@ public class DAOTBR implements ModInitializer {
 
 				String name = player.getName().getString();
 				server.getCommandManager().executeWithPrefix(server.getCommandSource().withSilent(), "team leave " + name);
-
-//				double targetY = player.getY();
 				server.getCommandManager().executeWithPrefix(server.getCommandSource().withSilent(),
 						"execute in dannys-aot:paradis run tp " + name + " 0 " + 100 + " 0");
 

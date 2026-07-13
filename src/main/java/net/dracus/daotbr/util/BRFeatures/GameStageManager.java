@@ -206,6 +206,7 @@ public class GameStageManager {
 
         alivePlayers.remove(player);
         player.changeGameMode(GameMode.SPECTATOR);
+        player.sendMessage(Text.literal("You're in spectator mode, use your scroll wheel to increase your speed."));
         checkWinCondition(player.getServer());
     }
 
