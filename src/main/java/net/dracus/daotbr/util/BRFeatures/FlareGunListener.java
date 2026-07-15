@@ -57,7 +57,7 @@ public class FlareGunListener {
                     if (nearby.getPos().distanceTo(serverPlayer.getPos()) <= 200) {
                         nearby.addStatusEffect(new StatusEffectInstance(StatusEffects.GLOWING, 200, 0, false, true));
                         nearby.sendMessage(
-                                Text.literal("You've been marked by an enemy player's flare!").formatted(Formatting.RED), true);
+                                Text.literal("You've been marked by an enemy player's flare!").formatted(Formatting.RED), false);
                         nearbyPlayerCount++;
                     }
 
