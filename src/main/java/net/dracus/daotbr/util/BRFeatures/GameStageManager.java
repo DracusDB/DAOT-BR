@@ -19,6 +19,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -46,6 +47,13 @@ public class GameStageManager {
     private static final Vec3d ARENA_SPAWN_POS = new Vec3d(0.5, 91, 0.5);
     private static final float ARENA_SPAWN_YAW = 0f;
     private static final float ARENA_SPAWN_PITCH = 0f;
+
+    // ---- battle zone info ----
+    private static final double ZONE_CENTER_X = 0.0;
+    private static final double ZONE_CENTER_Z = 0.0;
+    private static final double ZONE_STARTING_RADIUS = 1700.0;
+
+    private static BattleZoneManager battleZoneManager;
 
     // ---- return to lobby timer ----
     private static final int RETURN_TO_LOBBY_SECONDS = 15;
@@ -95,6 +103,11 @@ public class GameStageManager {
     }
 
     private static void onServerTick(MinecraftServer server) {
+        if (currentStage == GameStage.ARENA && battleZoneManager != null) {
+            ServerWorld arenaWorld = server.getWorld(ARENA_DIMENSION);
+            battleZoneManager.tick(arenaWorld, new ArrayList<>(alivePlayers));
+        }
+
         if (!returnTimerActive) return;
 
         long remainingMillis = returnAtMillis - System.currentTimeMillis();
@@ -108,10 +121,10 @@ public class GameStageManager {
         int remainingSeconds = (int) Math.ceil(remainingMillis / 1000.0);
 
         if (remainingSeconds != lastAnnouncedReturnSecond
-            && (remainingSeconds <= 5 || remainingSeconds % 10 == 0)) {
-        lastAnnouncedReturnSecond = remainingSeconds;
-        server.getPlayerManager().broadcast(
-                Text.literal("Returning to lobby in " + remainingSeconds + "...").formatted(Formatting.GOLD), false);
+                && (remainingSeconds <= 5 || remainingSeconds % 10 == 0)) {
+            lastAnnouncedReturnSecond = remainingSeconds;
+            server.getPlayerManager().broadcast(
+                    Text.literal("Returning to lobby in " + remainingSeconds + "...").formatted(Formatting.GOLD), false);
         }
 
     }
@@ -170,8 +183,35 @@ public class GameStageManager {
         return Collections.unmodifiableSet(alivePlayers);
     }
 
+    // ---- battle zone pass-throughs ----
+    public static double getZoneRadius() {
+        return battleZoneManager != null ? battleZoneManager.getRadius() : 0;
+    }
+
+    public static double getZoneCenterX() {
+        return battleZoneManager != null ? battleZoneManager.getCenterX() : 0;
+    }
+
+    public static double getZoneCenterZ() {
+        return battleZoneManager != null ? battleZoneManager.getCenterZ() : 0;
+    }
+
+    public static double getZoneStartingRadius() {
+        return ZONE_STARTING_RADIUS;
+    }
+
+    public static void setZonePaused(boolean paused) {
+        if (battleZoneManager != null) {
+            battleZoneManager.setPaused(paused);
+        }
+    }
+
+    public static boolean isZonePaused() {
+        return battleZoneManager != null && battleZoneManager.isPaused();
+    }
+
     /** Called by GameQueueManager once its own teleport/gamemode commands have run. */
-    public static void beginArenaStage(Set<ServerPlayerEntity> players) {
+    public static void beginArenaStage(MinecraftServer server, Set<ServerPlayerEntity> players) {
         if (currentStage != GameStage.LOBBY) {
             return; // don't let a second start hijack a running match
         }
@@ -179,6 +219,10 @@ public class GameStageManager {
         alivePlayers.addAll(players);
         currentStage = GameStage.ARENA;
         updateBossBar();
+
+        ServerWorld arenaWorld = server.getWorld(ARENA_DIMENSION);
+        battleZoneManager = new BattleZoneManager(arenaWorld, ZONE_CENTER_X, ZONE_CENTER_Z, ZONE_STARTING_RADIUS);
+        battleZoneManager.start();
     }
 
     private static void teleportLateJoinerToArena(ServerPlayerEntity player) {

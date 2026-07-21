@@ -220,7 +220,7 @@ public class GameQueueManager {
             }
         }
 
-        GameStageManager.beginArenaStage(new HashSet<>(server.getPlayerManager().getPlayerList()));
+        GameStageManager.beginArenaStage(server, new HashSet<>(server.getPlayerManager().getPlayerList()));
 
         List<String> introCommands = List.of(
                 //clear inventory and give everyone hp and hunger back
@@ -303,11 +303,8 @@ public class GameQueueManager {
 
                 "team leave @a",
 
-                "flexborder set 1750 1750 -1750 -1750 dannys-aot:paradis",
-                "execute in dannys-aot:paradis run spreadplayers 0 0 1700 1700 false @a",
-                "execute in dannys-aot:paradis run flexborder start_full 300 200 30 30 100",
-                "execute in dannys-aot:paradis run worldborder center 0 0",
-                "flexborder hploss 0",
+                "execute in dannys-aot:paradis run spreadplayers 0 0 1200 1200 false @a",
+
 
                 "effect give @a resistance 30 4 true",
                 "effect give @a minecraft:slow_falling 15 2 true",
