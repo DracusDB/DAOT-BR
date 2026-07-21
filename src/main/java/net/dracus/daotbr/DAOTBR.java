@@ -15,6 +15,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.world.GameMode;
 import net.dracus.daotbr.util.BRFeatures.GameStageManager;
+import net.dracus.daotbr.network.ZoneUpdatePayload;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 
 import net.minecraft.util.Identifier;
 
@@ -32,8 +34,11 @@ public class DAOTBR implements ModInitializer {
 		ModItems.registerModItems();
 		registerDeathHandler();
 
+		PayloadTypeRegistry.playS2C().register(ZoneUpdatePayload.ID, ZoneUpdatePayload.CODEC);
+
 		ShifterAirdropManager.init();
 		ShifterAirdropManager.initWaypointScheduler();
+		ShifterAirdropManager.initRandomDropScheduler();
 		FlareGunListener.register();
 
 		ModLootTableModifiers.modifyLootTables();

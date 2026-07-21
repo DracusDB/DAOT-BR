@@ -1,7 +1,7 @@
 {
 	"schemaVersion": 1,
 	"id": "daotbr",
-	"version": "0.5.3",
+	"version": "0.6.0",
 	"name": "DAOT BR",
 	"description": "A battle royale addon to Danny's Attack on Titan Mod",
 	"authors": [
@@ -23,6 +23,9 @@
 		],
 		"client": [
 			"net.dracus.daotbr.DAOTBRClient"
+		],
+		"journeymap": [
+			"net.dracus.daotbr.client.DaotbrJourneyMapPlugin"
 		]
 	},
 	"mixins": [

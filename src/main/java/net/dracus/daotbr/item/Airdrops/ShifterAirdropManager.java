@@ -1,11 +1,18 @@
 package net.dracus.daotbr.item.Airdrops;
 
 import net.dracus.daotbr.item.ModItems;
+import net.dracus.daotbr.util.BRFeatures.GameStageManager;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.block.Blocks;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.decoration.DisplayEntity;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.ChestBlockEntity;
@@ -16,6 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.world.Heightmap;
 
 
 public class ShifterAirdropManager {
@@ -50,6 +58,95 @@ public class ShifterAirdropManager {
         for (int i = 0; i < weight; i++) {
             pool.add(item);
         }
+    }
+
+    // ---- shared spawn logic, used by both the item and the random zone-drop scheduler ----
+    public static void spawnAirdropAt(MinecraftServer server, ServerWorld serverWorld, BlockPos targetPos, Text announceMessage) {
+        double spawnY = 250;
+
+        DisplayEntity.BlockDisplayEntity crate = EntityType.BLOCK_DISPLAY.create(serverWorld);
+        if (crate == null) return;
+
+        crate.setBlockState(Blocks.CHEST.getDefaultState());
+        crate.refreshPositionAndAngles(targetPos.getX() + 0.5, spawnY, targetPos.getZ() + 0.5, 0f, 0f);
+        serverWorld.spawnEntity(crate);
+
+        DisplayEntity.BlockDisplayEntity parachute = EntityType.BLOCK_DISPLAY.create(serverWorld);
+        if (parachute == null) return;
+
+        parachute.setBlockState(Blocks.WHITE_WOOL.getDefaultState());
+        parachute.refreshPositionAndAngles(targetPos.getX() + 0.5, spawnY + 3, targetPos.getZ() + 0.5, 0f, 0f);
+        serverWorld.spawnEntity(parachute);
+
+        register(crate, parachute, targetPos.getY(), 60);
+
+        String dimensionId = serverWorld.getRegistryKey().getValue().toString();
+        String waypointName = "Shifter_Airdrop";
+        String location = targetPos.getX() + " " + targetPos.getY() + " " + targetPos.getZ();
+        String createCommand = "jm waypoint create " + waypointName + " " + dimensionId + " " + location + " aqua @a true";
+        server.getCommandManager().executeWithPrefix(server.getCommandSource(), createCommand);
+        scheduleWaypointRemoval(server, waypointName, 90);
+
+        for (ServerPlayerEntity p : server.getPlayerManager().getPlayerList()) {
+            p.sendMessage(announceMessage);
+        }
+
+        serverWorld.playSound(null, targetPos, SoundEvents.BLOCK_BEACON_ACTIVATE, SoundCategory.PLAYERS, 1.0f, 1.0f);
+    }
+
+    // ---- random drop-in-zone scheduler ----
+    private static final long RANDOM_DROP_CHECK_INTERVAL_MS = 60_000;
+    private static final double RANDOM_DROP_CHANCE = 0.02;
+    private static final double ANCHOR_MAX_OFFSET = 150;
+    private static final int MAX_PLACEMENT_ATTEMPTS = 10;
+    private static final double MIN_PLAYER_DISTANCE = 75;
+    private static long lastRandomDropCheck = 0;
+
+    public static void initRandomDropScheduler() {
+        ServerTickEvents.END_SERVER_TICK.register(server -> {
+            if (!GameStageManager.isInArenaStage()) return;
+
+            long now = System.currentTimeMillis();
+            if (now - lastRandomDropCheck < RANDOM_DROP_CHECK_INTERVAL_MS) return;
+            lastRandomDropCheck = now;
+
+            if (RANDOM.nextDouble() >= RANDOM_DROP_CHANCE) return;
+
+            ServerWorld arenaWorld = server.getWorld(GameStageManager.ARENA_DIMENSION);
+            if (arenaWorld == null) return;
+
+            List<ServerPlayerEntity> arenaPlayers = arenaWorld.getPlayers(p -> true);
+            if (arenaPlayers.isEmpty()) return;
+
+            double avgX = arenaPlayers.stream().mapToDouble(ServerPlayerEntity::getX).average().orElse(0);
+            double avgZ = arenaPlayers.stream().mapToDouble(ServerPlayerEntity::getZ).average().orElse(0);
+
+            Integer x = null, z = null;
+            for (int attempt = 0; attempt < MAX_PLACEMENT_ATTEMPTS; attempt++) {
+                double offsetDistance = RANDOM.nextDouble() * ANCHOR_MAX_OFFSET;
+                double offsetAngle = RANDOM.nextDouble() * 2 * Math.PI;
+                int candidateX = (int) (avgX + offsetDistance * Math.cos(offsetAngle));
+                int candidateZ = (int) (avgZ + offsetDistance * Math.sin(offsetAngle));
+
+                boolean tooClose = arenaPlayers.stream().anyMatch(p ->
+                        p.squaredDistanceTo(candidateX, p.getY(), candidateZ) < MIN_PLAYER_DISTANCE * MIN_PLAYER_DISTANCE);
+
+                if (!tooClose) {
+                    x = candidateX;
+                    z = candidateZ;
+                    break;
+                }
+            }
+            if (x == null) return;
+
+            arenaWorld.getChunk(x >> 4, z >> 4);
+            int groundY = arenaWorld.getTopY(Heightmap.Type.MOTION_BLOCKING, x, z);
+            BlockPos targetPos = new BlockPos(x, groundY, z);
+
+            spawnAirdropAt(server, arenaWorld, targetPos,
+                    Text.literal("A random shifter syringe airdrop has been spawned at " + x + " " + z + "! It will land in 60 seconds!")
+                            .formatted(Formatting.GREEN, Formatting.ITALIC, Formatting.BOLD));
+        });
     }
 
     private static final List<ScheduledRemoval> scheduledRemovals = new ArrayList<>();
