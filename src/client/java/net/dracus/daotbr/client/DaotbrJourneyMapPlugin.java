@@ -9,6 +9,8 @@ import journeymap.api.v2.client.model.ShapeProperties;
 import journeymap.api.v2.common.JourneyMapPlugin;
 import net.dracus.daotbr.util.BRFeatures.GameStageManager;
 import net.minecraft.util.math.BlockPos;
+import journeymap.api.v2.client.util.UIState;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,8 +45,9 @@ public class DaotbrJourneyMapPlugin implements IClientPlugin {
 
         List<BlockPos> points = new ArrayList<>();
         int segments = 128;
+        double startAngle = -Math.PI / 4;
         for (int i = 0; i < segments; i++) {
-            double angle = 2 * Math.PI * i / segments;
+            double angle = startAngle + (2 * Math.PI * i / segments);
             int x = (int) (centerX + radius * Math.cos(angle));
             int z = (int) (centerZ + radius * Math.sin(angle));
             points.add(new BlockPos(x, 64, z));
@@ -55,10 +58,12 @@ public class DaotbrJourneyMapPlugin implements IClientPlugin {
             if (zoneOverlay == null) {
                 ShapeProperties props = new ShapeProperties()
                         .setStrokeColor(0xFF0000)
-                        .setStrokeWidth(2)
+                        .setStrokeWidth(3)
                         .setStrokeOpacity(0.9f)
                         .setFillOpacity(0f);
                 zoneOverlay = new PolygonOverlay("daotbr", GameStageManager.ARENA_DIMENSION, props, polygon);
+//                zoneOverlay.setMinZoom(2);
+//                zoneOverlay.setMaxZoom(UIState.ZOOM_IN_MAX);
             } else {
                 zoneOverlay.setOuterArea(polygon);
             }
