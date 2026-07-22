@@ -285,7 +285,9 @@ public class GameStageManager {
                 : "The battle royale ended with no survivors.";
         server.getPlayerManager().broadcast(Text.literal(message).formatted(Formatting.GREEN), false);
 
-        Text titleText = Text.literal(winner.getName().getString() + " has won!").formatted(Formatting.GOLD, Formatting.BOLD);
+        Text titleText = winner != null
+                ? Text.literal(winner.getName().getString() + " has won!").formatted(Formatting.GOLD, Formatting.BOLD)
+                : Text.literal("There are no survivors!").formatted(Formatting.GOLD, Formatting.BOLD);
 
         for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
             player.networkHandler.sendPacket(new TitleS2CPacket(titleText));
@@ -297,9 +299,6 @@ public class GameStageManager {
 
         server.getPlayerManager().broadcast(
                 Text.literal("Returning to lobby in " + RETURN_TO_LOBBY_SECONDS + " seconds...").formatted(Formatting.GOLD), false);
-
-        returnTimerActive = true;
-        returnAtMillis = System.currentTimeMillis() + (RETURN_TO_LOBBY_SECONDS * 1000L);
     }
 
     private static void resetToLobby(MinecraftServer server) {
