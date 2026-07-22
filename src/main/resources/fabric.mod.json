@@ -33,9 +33,17 @@
 	],
 	"depends": {
 		"fabricloader": ">=0.16.0",
+		"fabric-api": "*",
 		"minecraft": "~1.21.1",
 		"java": ">=21",
 
-		"dannys-aot": "*"
+		"dannys-aot": "*",
+		"starterkit": "*"
+	},
+
+	"suggests": {
+		"backpacked": "*",
+		"journeymap": "*"
+
 	}
 }

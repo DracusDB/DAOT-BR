@@ -9,14 +9,20 @@ import net.dracus.daotbr.util.ModLootTableModifiers;
 import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.world.GameMode;
 import net.dracus.daotbr.util.BRFeatures.GameStageManager;
 import net.dracus.daotbr.network.ZoneUpdatePayload;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+import net.fabricmc.loader.api.FabricLoader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 
 import net.minecraft.util.Identifier;
 
@@ -33,6 +39,7 @@ public class DAOTBR implements ModInitializer {
 		ModItemGroups.registerItemGroups();
 		ModItems.registerModItems();
 		registerDeathHandler();
+		installDefaultStarterKit();
 
 		PayloadTypeRegistry.playS2C().register(ZoneUpdatePayload.ID, ZoneUpdatePayload.CODEC);
 
@@ -46,7 +53,36 @@ public class DAOTBR implements ModInitializer {
 		GameQueueManager.register();
 		GameStageManager.register();
 
+		ServerLifecycleEvents.SERVER_STARTED.register(server -> {
+			server.getCommandManager().executeWithPrefix(server.getCommandSource().withSilent(), "sk reload");
+		});
+
 	}
+
+	private static void installDefaultStarterKit() {
+		Path targetDir = FabricLoader.getInstance().getConfigDir().resolve("starterkit").resolve("kits");
+		Path targetFile = targetDir.resolve("ODM.txt");
+
+		if (Files.exists(targetFile)) {
+			return; // don't overwrite if it's already there — respects any manual edits
+		}
+
+		try {
+			Files.createDirectories(targetDir);
+			try (InputStream in = DAOTBR.class.getClassLoader().getResourceAsStream("starterkit_defaults/ODM.txt")) {
+				if (in == null) {
+					LOGGER.warn("Bundled ODM.txt resource not found — cannot install default starter kit.");
+					return;
+				}
+				Files.copy(in, targetFile);
+				LOGGER.info("Installed default ODM starter kit to " + targetFile);
+			}
+		} catch (IOException e) {
+			LOGGER.error("Failed to install default ODM starter kit", e);
+		}
+	}
+
+
 
 
 	// Set to spectator on death

@@ -66,6 +66,12 @@ public class GameStageManager {
             ServerPlayerEntity player = handler.getPlayer();
             stageBossBar.addPlayer(player);
 
+            server.getCommandManager().executeWithPrefix(
+                    server.getCommandSource().withSilent(),
+                    "execute as " + player.getName().getString() + " run sk choose odm"
+            );
+
+
             if (currentStage == GameStage.LOBBY) {
                 server.execute(() -> {
                     teleportToLobby(player);

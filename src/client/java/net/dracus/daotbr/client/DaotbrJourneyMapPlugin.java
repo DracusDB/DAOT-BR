@@ -58,12 +58,12 @@ public class DaotbrJourneyMapPlugin implements IClientPlugin {
             if (zoneOverlay == null) {
                 ShapeProperties props = new ShapeProperties()
                         .setStrokeColor(0xFF0000)
-                        .setStrokeWidth(3)
+                        .setStrokeWidth(5)
                         .setStrokeOpacity(0.9f)
                         .setFillOpacity(0f);
                 zoneOverlay = new PolygonOverlay("daotbr", GameStageManager.ARENA_DIMENSION, props, polygon);
-//                zoneOverlay.setMinZoom(2);
-//                zoneOverlay.setMaxZoom(UIState.ZOOM_IN_MAX);
+                zoneOverlay.setMinZoom(2);
+                zoneOverlay.setMaxZoom(UIState.ZOOM_IN_MAX);
             } else {
                 zoneOverlay.setOuterArea(polygon);
             }
