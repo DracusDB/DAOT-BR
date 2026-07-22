@@ -26,7 +26,8 @@ public class BattleZoneManager {
     }
 
     private static final List<ZonePhase> PHASES = List.of(
-            new ZonePhase(1300, 180_000, 180_000, 1f, 5, 0.01),
+            //make first stage 180 after testing is done, second state 120_000
+            new ZonePhase(1300, 180_000, 210_000, 1f, 5, 0.01),
             new ZonePhase(1000, 120_000, 120_000, 2f, 4, 0.02),
             new ZonePhase(700, 90_000, 90_000, 3f, 3, 0.03),
             new ZonePhase(500, 60_000, 60_000, 5f, 2, 0.04),
@@ -149,7 +150,7 @@ public class BattleZoneManager {
     }
 
     private void sendPausedActionBar(List<ServerPlayerEntity> players) {
-        Text text = Text.literal("⏸ Rumbling paused").formatted(Formatting.YELLOW);
+        Text text = Text.literal("⏸ Rumbling timer paused").formatted(Formatting.YELLOW);
         for (ServerPlayerEntity player : players) {
             if (player.getWorld() != arenaWorld) continue;
             player.sendMessage(text, true);
@@ -178,6 +179,7 @@ public class BattleZoneManager {
                 shrinkStartRadius = getCurrentRadius(now);
             }
         } else if (elapsed >= phase.shrinkDurationMs()) {
+            shrinkStartRadius = getCurrentRadius(now); //testing to see if fixes
             phaseIndex++;
             waiting = true;
             phaseStartTime = now;

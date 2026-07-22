@@ -96,7 +96,7 @@ public class ShifterAirdropManager {
 
     // ---- random drop-in-zone scheduler ----
     private static final long RANDOM_DROP_CHECK_INTERVAL_MS = 60_000;
-    private static final double RANDOM_DROP_CHANCE = 0.04;
+    private static final double RANDOM_DROP_CHANCE = 0.02;
     private static final double ANCHOR_MAX_OFFSET = 150;
     private static final int MAX_PLACEMENT_ATTEMPTS = 10;
     private static final double MIN_PLAYER_DISTANCE = 75;
