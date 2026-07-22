@@ -116,6 +116,36 @@ public class GameQueueManager {
                         })
                 )
         );
+
+        dispatcher.register(literal("daotbr")
+                .then(literal("pause")
+                        .requires(source -> source.hasPermissionLevel(2))
+                        .executes(ctx -> {
+                            if (!GameStageManager.isInArenaStage()) {
+                                ctx.getSource().sendFeedback(() -> Text.literal("No match in progress.").formatted(Formatting.RED), false);
+                                return 0;
+                            }
+                            GameStageManager.setZonePaused(true);
+                            ctx.getSource().sendFeedback(() -> Text.literal("Zone paused.").formatted(Formatting.YELLOW), true);
+                            return 1;
+                        })
+                )
+        );
+
+        dispatcher.register(literal("daotbr")
+                .then(literal("resume")
+                        .requires(source -> source.hasPermissionLevel(2))
+                        .executes(ctx -> {
+                            if (!GameStageManager.isInArenaStage()) {
+                                ctx.getSource().sendFeedback(() -> Text.literal("No match in progress.").formatted(Formatting.RED), false);
+                                return 0;
+                            }
+                            GameStageManager.setZonePaused(false);
+                            ctx.getSource().sendFeedback(() -> Text.literal("Zone resumed.").formatted(Formatting.GREEN), true);
+                            return 1;
+                        })
+                )
+        );
     }
 
     private static final String READY_TEAM_NAME = "ready_daotbr";
