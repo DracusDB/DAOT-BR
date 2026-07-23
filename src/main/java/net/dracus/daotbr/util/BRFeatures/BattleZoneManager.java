@@ -27,11 +27,11 @@ public class BattleZoneManager {
 
     private static final List<ZonePhase> PHASES = List.of(
             //make first stage 180 after testing is done, second state 120_000
-            new ZonePhase(1300, 180_000, 210_000, 1f, 5, 0.01),
-            new ZonePhase(1000, 120_000, 120_000, 2f, 4, 0.02),
-            new ZonePhase(700, 90_000, 90_000, 3f, 3, 0.03),
-            new ZonePhase(500, 60_000, 60_000, 5f, 2, 0.04),
-            new ZonePhase(100, 45_000, 30_000, 8f, 1, 0.05)
+            new ZonePhase(1300, 180_000, 240_000, 1f, 5, 0.01),
+            new ZonePhase(1000, 120_000, 180_000, 2f, 4, 0.02),
+            new ZonePhase(700, 60_000, 60_000, 3f, 3, 0.03),
+            new ZonePhase(500, 30_000, 30_000, 5f, 2, 0.04),
+            new ZonePhase(125, 15_000, 15_000, 8f, 1, 0.05)
     );
 
     private static final RegistryKey<DamageType> ZONE_DAMAGE_TYPE =
@@ -59,6 +59,10 @@ public class BattleZoneManager {
     private boolean waiting = true;
     private long phaseStartTime;
     private double shrinkStartRadius;
+
+    public int getPhaseIndex() {
+        return phaseIndex;
+    }
 
     private long lastDamageTick = 0;
     private long lastActionBarTick = 0;
@@ -252,7 +256,7 @@ public class BattleZoneManager {
 
         return waiting
                 ? Text.literal("Rumbling begins in " + timeText).formatted(Formatting.YELLOW)
-                : Text.literal("Rumbling is activated! " + timeText).formatted(Formatting.RED);
+                : Text.literal("Rumbling is coming! " + timeText).formatted(Formatting.RED);
     }
 
     private String formatTime(long totalSeconds) {

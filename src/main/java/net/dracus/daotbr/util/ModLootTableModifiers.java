@@ -36,7 +36,7 @@ public class ModLootTableModifiers {
                                 .apply(SetCountLootFunction.builder(UniformLootNumberProvider.create(2, 4))));
                 LootPool.Builder poolBuilder1 = LootPool.builder()
                         .rolls(ConstantLootNumberProvider.create(1))
-                        .conditionally(RandomChanceLootCondition.builder(0.002f))
+                        .conditionally(RandomChanceLootCondition.builder(0.0005f))
                         .with(ItemEntry.builder(ModItems.SHIFTER_AIRDROP));
 
                 LootPool.Builder poolBuilder2 = LootPool.builder()
