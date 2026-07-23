@@ -44,6 +44,11 @@ public class GameStageManager {
             RegistryKeys.WORLD,
             Identifier.of("dannys-aot", "paradis")
     );
+
+    public static int getZonePhaseIndex() {
+        return battleZoneManager != null ? battleZoneManager.getPhaseIndex() : 0;
+    }
+
     private static final Vec3d ARENA_SPAWN_POS = new Vec3d(0.5, 91, 0.5);
     private static final float ARENA_SPAWN_YAW = 0f;
     private static final float ARENA_SPAWN_PITCH = 0f;

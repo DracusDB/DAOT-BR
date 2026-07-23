@@ -18,11 +18,11 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.ChestBlockEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Random;
+
+import java.util.*;
+
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.Heightmap;
 
 
@@ -96,11 +96,9 @@ public class ShifterAirdropManager {
 
     // ---- random drop-in-zone scheduler ----
     private static final long RANDOM_DROP_CHECK_INTERVAL_MS = 60_000;
-    private static final double RANDOM_DROP_CHANCE = 0.02;
-    private static final double ANCHOR_MAX_OFFSET = 150;
-    private static final int MAX_PLACEMENT_ATTEMPTS = 10;
-    private static final double MIN_PLAYER_DISTANCE = 75;
+    private static final double[] PHASE_DROP_CHANCE = { 0.02, 0.04, 0.06, 0.08, 0.10 };
     private static long lastRandomDropCheck = 0;
+
 
     public static void initRandomDropScheduler() {
         ServerTickEvents.END_SERVER_TICK.register(server -> {
@@ -110,42 +108,63 @@ public class ShifterAirdropManager {
             if (now - lastRandomDropCheck < RANDOM_DROP_CHECK_INTERVAL_MS) return;
             lastRandomDropCheck = now;
 
-            if (RANDOM.nextDouble() >= RANDOM_DROP_CHANCE) return;
+            int phaseIndex = GameStageManager.getZonePhaseIndex();
+            double chance = PHASE_DROP_CHANCE[Math.min(phaseIndex, PHASE_DROP_CHANCE.length - 1)];
+            if (RANDOM.nextDouble() >= chance) return;
 
             ServerWorld arenaWorld = server.getWorld(GameStageManager.ARENA_DIMENSION);
             if (arenaWorld == null) return;
 
-            List<ServerPlayerEntity> arenaPlayers = arenaWorld.getPlayers(p -> true);
-            if (arenaPlayers.isEmpty()) return;
+            double centerX = GameStageManager.getZoneCenterX();
+            double centerZ = GameStageManager.getZoneCenterZ();
+            double radius = GameStageManager.getZoneRadius();
 
-            double avgX = arenaPlayers.stream().mapToDouble(ServerPlayerEntity::getX).average().orElse(0);
-            double avgZ = arenaPlayers.stream().mapToDouble(ServerPlayerEntity::getZ).average().orElse(0);
+            double angle = RANDOM.nextDouble() * 2 * Math.PI;
+            double distance = Math.sqrt(RANDOM.nextDouble()) * radius;
+            int x = (int) (centerX + distance * Math.cos(angle));
+            int z = (int) (centerZ + distance * Math.sin(angle));
 
-            Integer x = null, z = null;
-            for (int attempt = 0; attempt < MAX_PLACEMENT_ATTEMPTS; attempt++) {
-                double offsetDistance = RANDOM.nextDouble() * ANCHOR_MAX_OFFSET;
-                double offsetAngle = RANDOM.nextDouble() * 2 * Math.PI;
-                int candidateX = (int) (avgX + offsetDistance * Math.cos(offsetAngle));
-                int candidateZ = (int) (avgZ + offsetDistance * Math.sin(offsetAngle));
+            ChunkPos chunkPos = new ChunkPos(x >> 4, z >> 4);
+            arenaWorld.getChunkManager().setChunkForced(chunkPos, true);
+            scheduledUnforces.add(new ScheduledUnforce(arenaWorld, chunkPos, 70_000));
 
-                boolean tooClose = arenaPlayers.stream().anyMatch(p ->
-                        p.squaredDistanceTo(candidateX, p.getY(), candidateZ) < MIN_PLAYER_DISTANCE * MIN_PLAYER_DISTANCE);
+            arenaWorld.getChunk(x >> 4, z >> 4); // force synchronous load before reading the heightmap
 
-                if (!tooClose) {
-                    x = candidateX;
-                    z = candidateZ;
-                    break;
-                }
-            }
-            if (x == null) return;
-
-            arenaWorld.getChunk(x >> 4, z >> 4);
             int groundY = arenaWorld.getTopY(Heightmap.Type.MOTION_BLOCKING, x, z);
             BlockPos targetPos = new BlockPos(x, groundY, z);
 
             spawnAirdropAt(server, arenaWorld, targetPos,
                     Text.literal("A random shifter syringe airdrop has been spawned at " + x + " " + z + "! It will land in 60 seconds!")
                             .formatted(Formatting.GREEN, Formatting.ITALIC, Formatting.BOLD));
+        });
+    }
+
+    private static final List<ScheduledUnforce> scheduledUnforces = new ArrayList<>();
+
+    private static class ScheduledUnforce {
+        final ServerWorld world;
+        final ChunkPos pos;
+        final long startTimeMillis;
+        final long durationMillis;
+
+        ScheduledUnforce(ServerWorld world, ChunkPos pos, long durationMillis) {
+            this.world = world;
+            this.pos = pos;
+            this.startTimeMillis = System.currentTimeMillis();
+            this.durationMillis = durationMillis;
+        }
+    }
+
+    public static void initChunkUnforceScheduler() {
+        ServerTickEvents.END_SERVER_TICK.register(server -> {
+            Iterator<ScheduledUnforce> iterator = scheduledUnforces.iterator();
+            while (iterator.hasNext()) {
+                ScheduledUnforce task = iterator.next();
+                if (System.currentTimeMillis() - task.startTimeMillis >= task.durationMillis) {
+                    task.world.getChunkManager().setChunkForced(task.pos, false);
+                    iterator.remove();
+                }
+            }
         });
     }
 
