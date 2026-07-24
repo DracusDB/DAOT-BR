@@ -142,7 +142,7 @@ public class GameStageManager {
 
     //boss bar showing which stage we're in (for testing)
     private static final ServerBossBar stageBossBar = new ServerBossBar(
-            Text.literal("Stage: Lobby"),
+            Text.literal("Lobby (use /daotbr ready to ready up)"),
             BossBar.Color.GREEN,
             BossBar.Style.PROGRESS
     );
@@ -150,15 +150,15 @@ public class GameStageManager {
     private static void updateBossBar() {
         switch (currentStage) {
             case LOBBY -> {
-                stageBossBar.setName(Text.literal("Stage: Lobby"));
+                stageBossBar.setName(Text.literal("Lobby (use /daotbr ready to ready up)"));
                 stageBossBar.setColor(BossBar.Color.GREEN);
             }
             case ARENA -> {
-                stageBossBar.setName(Text.literal("Stage: Battle Royale In Progress"));
+                stageBossBar.setName(Text.literal("Battle Royale In Progress"));
                 stageBossBar.setColor(BossBar.Color.RED);
             }
             case ENDED -> {
-                stageBossBar.setName(Text.literal("Stage: Match Ended"));
+                stageBossBar.setName(Text.literal("Match Ended"));
                 stageBossBar.setColor(BossBar.Color.YELLOW);
             }
         }
