@@ -264,7 +264,7 @@ public class GameQueueManager {
 
         for (String command : introCommands) {
             System.out.println("Running command: [" + command + "]");
-            server.getCommandManager().executeWithPrefix(server.getCommandSource(), command);
+            server.getCommandManager().executeWithPrefix(server.getCommandSource().withSilent(), command);
         }
 
         List<String> commands = List.of(
@@ -307,6 +307,7 @@ public class GameQueueManager {
                 "gamerule doFireTick false",
                 "gamerule keepInventory false",
                 "gamerule doLimitedCrafting true",
+                "gamerule doImmediateRespawn true",
 
                 "time set day",
                 "gamerule doDaylightCycle false",

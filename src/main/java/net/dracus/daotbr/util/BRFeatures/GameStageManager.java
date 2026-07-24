@@ -173,6 +173,8 @@ public class GameStageManager {
         ServerWorld lobbyWorld = player.getServer().getWorld(LOBBY_DIMENSION);
         if (lobbyWorld == null) return;
 
+        player.setAbsorptionAmount(0.0f);
+
         player.teleport(
                 lobbyWorld,
                 LOBBY_SPAWN_POS.x, LOBBY_SPAWN_POS.y, LOBBY_SPAWN_POS.z,
