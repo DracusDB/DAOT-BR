@@ -256,7 +256,10 @@ public class GameQueueManager {
                 //clear inventory and give everyone hp and hunger back
                 "clear @a",
                 "sk reset",
-                "effect clear @a"
+                //resets kits
+                "execute as @a run sk choose odm",
+                "effect give @a minecraft:instant_health 1 3 true",
+                "effect give @a minecraft:saturation 1 3 true"
         );
 
         for (String command : introCommands) {
@@ -277,9 +280,6 @@ public class GameQueueManager {
                 "gamemode adventure @a",
                 "effect give @a minecraft:instant_health 1 5",
                 "effect give @a minecraft:saturation 1 5",
-
-                //resets kits
-                "execute as @a run sk choose odm",
 
                 //sets preferred gamerules as intended
                 "gamerule villagersSpawnWithPowers false",
@@ -307,6 +307,7 @@ public class GameQueueManager {
                 "gamerule doFireTick false",
                 "gamerule keepInventory false",
                 "gamerule doLimitedCrafting true",
+                "gamerule doImmediateRespawn true",
 
                 "time set day",
                 "gamerule doDaylightCycle false",

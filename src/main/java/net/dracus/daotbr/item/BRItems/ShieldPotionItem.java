@@ -1,5 +1,6 @@
 package net.dracus.daotbr.item.BRItems;
 
+import net.dracus.daotbr.util.BRFeatures.GameStageManager;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttributeInstance;
 import net.minecraft.entity.attribute.EntityAttributes;

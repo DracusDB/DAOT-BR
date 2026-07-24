@@ -1,5 +1,6 @@
 package net.dracus.daotbr;
 
+import net.dracus.daotbr.effect.ModEffects;
 import net.dracus.daotbr.item.Airdrops.ShifterAirdropManager;
 import net.dracus.daotbr.util.BRFeatures.FlareGunListener;
 import net.dracus.daotbr.item.ModItemGroups;
@@ -52,6 +53,8 @@ public class DAOTBR implements ModInitializer {
 		ShifterIncapacitationHandler.register();
 
 		ModLootTableModifiers.modifyLootTables();
+
+		ModEffects.registerEffects();
 
 		GameQueueManager.register();
 		GameStageManager.register();

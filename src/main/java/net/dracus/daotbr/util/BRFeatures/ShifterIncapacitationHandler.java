@@ -215,9 +215,10 @@ public class ShifterIncapacitationHandler {
         server.getCommandManager().executeWithPrefix(server.getCommandSource().withSilent(), "effect give " + name + " minecraft:mining_fatigue 45 4 true");
         server.getCommandManager().executeWithPrefix(server.getCommandSource().withSilent(), "effect give " + name + " minecraft:slow_falling 10 1 true");
         server.getCommandManager().executeWithPrefix(server.getCommandSource().withSilent(), "effect give " + name + " minecraft:glowing 45 0 true");
+        server.getCommandManager().executeWithPrefix(server.getCommandSource().withSilent(), "effect give " + name + " daotbr:shifter_incapacitated 45 0 true");
 
-        player.sendMessage(Text.literal("You've suffered from what would have been a killing blow for a normal human. You need to give your body time to regenerate.")
-                .formatted(Formatting.AQUA), false);
+        player.sendMessage(Text.literal("You've suffered from what would have been a killing blow for a normal human. You need to give your body time to regenerate before you can do so again.")
+                .formatted(Formatting.RED), false);
 
         server.getPlayerManager().broadcast(
                 Text.literal("Titan Shifter " + name + " suffered a killing blow at " + (int) Math.ceil(player.getX()) + " " + (int) Math.ceil(player.getY()) + " " + (int) Math.ceil(player.getZ()) + "!")
