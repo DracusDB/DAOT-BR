@@ -1,5 +1,6 @@
 package net.dracus.daotbr.item.BRItems;
 
+import net.dracus.daotbr.util.BRFeatures.GameStageManager;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttributeInstance;
 import net.minecraft.entity.attribute.EntityAttributes;
@@ -75,6 +76,10 @@ public class ShieldPotionItem extends Item {
 
             if (newAbsorption == maxAbsorption) {
                 serverPlayer.sendMessage(Text.literal("Max overhealth reached!").formatted(Formatting.AQUA));
+            }
+
+            if (GameStageManager.isInLobby(serverPlayer.getWorld())) {
+                serverPlayer.setAbsorptionAmount(0.0f);
             }
 
             world.playSound(
