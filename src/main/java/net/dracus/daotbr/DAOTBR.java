@@ -5,6 +5,7 @@ import net.dracus.daotbr.util.BRFeatures.FlareGunListener;
 import net.dracus.daotbr.item.ModItemGroups;
 import net.dracus.daotbr.item.ModItems;
 import net.dracus.daotbr.util.BRFeatures.GameQueueManager;
+import net.dracus.daotbr.util.BRFeatures.ShifterIncapacitationHandler;
 import net.dracus.daotbr.util.ModLootTableModifiers;
 import net.fabricmc.api.ModInitializer;
 
@@ -22,7 +23,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 
 import net.minecraft.util.Identifier;
 
@@ -48,6 +48,8 @@ public class DAOTBR implements ModInitializer {
 		ShifterAirdropManager.initRandomDropScheduler();
 		ShifterAirdropManager.initChunkUnforceScheduler();
 		FlareGunListener.register();
+		ShifterIncapacitationHandler.initCooldownScheduler();
+		ShifterIncapacitationHandler.register();
 
 		ModLootTableModifiers.modifyLootTables();
 
