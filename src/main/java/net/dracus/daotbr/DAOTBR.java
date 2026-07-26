@@ -6,7 +6,6 @@ import net.dracus.daotbr.util.BRFeatures.FlareGunListener;
 import net.dracus.daotbr.item.ModItemGroups;
 import net.dracus.daotbr.item.ModItems;
 import net.dracus.daotbr.util.BRFeatures.GameQueueManager;
-import net.dracus.daotbr.util.BRFeatures.ShifterIncapacitationHandler;
 import net.dracus.daotbr.util.ModLootTableModifiers;
 import net.fabricmc.api.ModInitializer;
 
@@ -49,9 +48,6 @@ public class DAOTBR implements ModInitializer {
 		ShifterAirdropManager.initRandomDropScheduler();
 		ShifterAirdropManager.initChunkUnforceScheduler();
 		FlareGunListener.register();
-		ShifterIncapacitationHandler.initCooldownScheduler();
-		ShifterIncapacitationHandler.register();
-		ShifterIncapacitationHandler.initCarryDropChecker();
 
 		ModLootTableModifiers.modifyLootTables();
 

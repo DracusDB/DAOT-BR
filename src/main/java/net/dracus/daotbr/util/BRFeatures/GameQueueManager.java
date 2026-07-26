@@ -281,6 +281,9 @@ public class GameQueueManager {
                 "effect give @a minecraft:instant_health 1 5",
                 "effect give @a minecraft:saturation 1 5",
 
+                //with shifter incapacitation
+                "gamerule announceShifterDefeat true",
+
                 //sets preferred gamerules as intended
                 "gamerule villagersSpawnWithPowers false",
                 "gamerule allowOgreSpawns false",
