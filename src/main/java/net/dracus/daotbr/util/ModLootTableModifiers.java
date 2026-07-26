@@ -51,7 +51,7 @@ public class ModLootTableModifiers {
 
                 LootPool.Builder poolBuilder4 = LootPool.builder()
                         .rolls(ConstantLootNumberProvider.create(1))
-                        .conditionally(RandomChanceLootCondition.builder(0.07f))
+                        .conditionally(RandomChanceLootCondition.builder(0.05f))
                         .with(ItemEntry.builder(ModItems.APG_PACKAGE));
 
                 LootPool.Builder poolBuilder11 = LootPool.builder()
@@ -85,7 +85,7 @@ public class ModLootTableModifiers {
                         .with(ItemEntry.builder(armorPotion));
                 LootPool.Builder poolBuilder9 = LootPool.builder()
                         .rolls(ConstantLootNumberProvider.create(1))
-                        .conditionally(RandomChanceLootCondition.builder(0.009f))
+                        .conditionally(RandomChanceLootCondition.builder(0.002f))
                         .with(ItemEntry.builder(redFlareCartridge));
                 LootPool.Builder poolBuilder10 = LootPool.builder()
                         .rolls(ConstantLootNumberProvider.create(1))
