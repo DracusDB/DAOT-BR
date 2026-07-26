@@ -283,6 +283,7 @@ public class GameQueueManager {
 
                 //sets preferred gamerules as intended
                 "gamerule villagersSpawnWithPowers false",
+                "gamerule allowOgreSpawns false",
                 "gamerule forceShifting false",
                 "gamerule allowCuffing true",
                 "gamerule allowODM true",

@@ -1,32 +1,28 @@
 package net.dracus.daotbr.util.BRFeatures;
 
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
+import net.fabricmc.fabric.api.event.player.*;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.network.packet.s2c.play.EntityPassengersSetS2CPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Hand;
 import net.minecraft.world.GameRules;
 
 import java.lang.reflect.Method;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import net.minecraft.network.packet.CustomPayload;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
-import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
-import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
-import net.fabricmc.fabric.api.event.player.UseBlockCallback;
-import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.TypedActionResult;
 
@@ -148,7 +144,8 @@ public class ShifterIncapacitationHandler {
 
         UseItemCallback.EVENT.register((player, world, hand) -> {
             if (world.isClient()) return TypedActionResult.pass(player.getStackInHand(hand));
-            if (incapacitationCooldown.contains(player.getUuid())) return TypedActionResult.fail(player.getStackInHand(hand));
+            if (incapacitationCooldown.contains(player.getUuid()))
+                return TypedActionResult.fail(player.getStackInHand(hand));
             return TypedActionResult.pass(player.getStackInHand(hand));
         });
     }
@@ -156,6 +153,7 @@ public class ShifterIncapacitationHandler {
     // ---- registration ----
     public static void register() {
         registerInputLock();
+        registerCarryMechanic();
         ServerLivingEntityEvents.ALLOW_DEATH.register((entity, damageSource, damageAmount) -> {
             if (!(entity instanceof ServerPlayerEntity player)) return true;
             if (player.getWorld().isClient()) return true;
@@ -197,8 +195,6 @@ public class ShifterIncapacitationHandler {
         MinecraftServer server = player.getServer();
         if (server == null) return;
 
-//        server.getCommandManager().executeWithPrefix(server.getCommandSource().withSilent(), "tag " + name + " add shifter_regen_cooldown");
-//        incapacitationCooldown.add(player.getUuid());
         server.getCommandManager().executeWithPrefix(server.getCommandSource().withSilent(), "tag " + name + " add shifter_regen_cooldown");
         incapacitationCooldown.add(player.getUuid());
         scheduledCooldownRemovals.add(new ScheduledCooldownRemoval(player, COOLDOWN_DURATION_MS));
@@ -260,6 +256,15 @@ public class ShifterIncapacitationHandler {
                         continue;
                     }
 
+                    if (task.player.hasVehicle()) {
+                        Entity vehicle = task.player.getVehicle();
+                        task.player.stopRiding();
+                        if (vehicle instanceof ServerPlayerEntity serverCarrier) {
+                            serverCarrier.networkHandler.sendPacket(new EntityPassengersSetS2CPacket(vehicle));
+                        }
+                    }
+                    activeCarries.remove(task.playerUUID);
+
                     String name = task.player.getName().getString();
                     server.getCommandManager().executeWithPrefix(server.getCommandSource().withSilent(), "tag " + name + " remove shifter_regen_cooldown");
                     server.getCommandManager().executeWithPrefix(server.getCommandSource().withSilent(), "effect give " + name + " minecraft:resistance infinite 0 true");
@@ -268,4 +273,68 @@ public class ShifterIncapacitationHandler {
             }
         });
     }
-}
+
+    private static final Map<UUID, Long> lastCarryActionMillis = new HashMap<>();
+    private static final long CARRY_DEBOUNCE_MS = 300;
+
+    private static void registerCarryMechanic() {
+        UseEntityCallback.EVENT.register((carrier, world, hand, target, hitResult) -> {
+            if (world.isClient()) return ActionResult.PASS;
+            if (!(target instanceof ServerPlayerEntity targetPlayer)) return ActionResult.PASS;
+            if (targetPlayer == carrier) return ActionResult.PASS;
+
+            long now = System.currentTimeMillis();
+            Long lastAction = lastCarryActionMillis.get(carrier.getUuid());
+            if (lastAction != null && now - lastAction < CARRY_DEBOUNCE_MS) {
+                return ActionResult.SUCCESS;
+            }
+
+            if (!incapacitationCooldown.contains(targetPlayer.getUuid())) return ActionResult.PASS;
+            if (targetPlayer.hasVehicle()) return ActionResult.PASS;
+            if (carrier.hasVehicle()) return ActionResult.PASS;
+
+            boolean mounted = targetPlayer.startRiding(carrier, true);
+            if (!mounted) return ActionResult.PASS;
+
+            if (carrier instanceof ServerPlayerEntity serverCarrier) {
+                serverCarrier.networkHandler.sendPacket(new EntityPassengersSetS2CPacket(carrier));
+            }
+
+            lastCarryActionMillis.put(carrier.getUuid(), now);
+            activeCarries.put(targetPlayer.getUuid(), carrier.getUuid());
+            carrier.sendMessage(Text.literal("You are now carrying " + targetPlayer.getName().getString() + ".").formatted(Formatting.GRAY), true);
+            return ActionResult.SUCCESS;
+        });
+    }
+
+    private static final Set<UUID> wasSneakingLastTick = new HashSet<>();
+
+    public static void initCarryDropChecker() {
+        ServerTickEvents.END_SERVER_TICK.register(server -> {
+            for (ServerPlayerEntity carrier : server.getPlayerManager().getPlayerList()) {
+                boolean sneakingNow = carrier.isSneaking();
+                boolean sneakingBefore = wasSneakingLastTick.contains(carrier.getUuid());
+
+                if (sneakingNow) {
+                    wasSneakingLastTick.add(carrier.getUuid());
+                } else {
+                    wasSneakingLastTick.remove(carrier.getUuid());
+                }
+
+                if (!sneakingNow || sneakingBefore) continue; // only act on the moment sneaking BEGINS
+
+                for (Entity passenger : new ArrayList<>(carrier.getPassengerList())) {
+                    if (!(passenger instanceof ServerPlayerEntity carriedPlayer)) continue;
+
+                    carriedPlayer.stopRiding();
+                    carrier.networkHandler.sendPacket(new EntityPassengersSetS2CPacket(carrier));
+                    activeCarries.remove(carriedPlayer.getUuid());
+                    carrier.sendMessage(Text.literal("You set down " + carriedPlayer.getName().getString() + ".").formatted(Formatting.GRAY), true);
+                }
+            }
+        });
+    }
+
+    private static final Map<UUID, UUID> activeCarries = new HashMap<>(); // carried player UUID -> carrier UUID
+
+    }

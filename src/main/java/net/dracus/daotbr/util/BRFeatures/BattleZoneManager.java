@@ -30,8 +30,8 @@ public class BattleZoneManager {
             new ZonePhase(1300, 180_000, 240_000, 1f, 5, 0.01),
             new ZonePhase(1000, 120_000, 180_000, 2f, 4, 0.02),
             new ZonePhase(700, 60_000, 60_000, 3f, 3, 0.03),
-            new ZonePhase(500, 30_000, 30_000, 5f, 2, 0.04),
-            new ZonePhase(125, 15_000, 15_000, 8f, 1, 0.05)
+            new ZonePhase(500, 30_000, 30_000, 3f, 2, 0.04),
+            new ZonePhase(125, 30_000, 30_000, 3f, 1, 0.05)
     );
 
     private static final RegistryKey<DamageType> ZONE_DAMAGE_TYPE =

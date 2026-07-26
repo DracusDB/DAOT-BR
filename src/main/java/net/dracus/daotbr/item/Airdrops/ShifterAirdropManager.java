@@ -95,7 +95,7 @@ public class ShifterAirdropManager {
     }
 
     // ---- random drop-in-zone scheduler ----
-    private static final long RANDOM_DROP_CHECK_INTERVAL_MS = 60_000;
+    private static final long RANDOM_DROP_CHECK_INTERVAL_MS = 30_000;
     private static final double[] PHASE_DROP_CHANCE = { 0.02, 0.04, 0.06, 0.08, 0.10 };
     private static long lastRandomDropCheck = 0;
 

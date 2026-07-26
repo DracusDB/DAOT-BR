@@ -36,17 +36,17 @@ public class ModLootTableModifiers {
                                 .apply(SetCountLootFunction.builder(UniformLootNumberProvider.create(2, 4))));
                 LootPool.Builder poolBuilder1 = LootPool.builder()
                         .rolls(ConstantLootNumberProvider.create(1))
-                        .conditionally(RandomChanceLootCondition.builder(0.0005f))
+                        .conditionally(RandomChanceLootCondition.builder(0.001f))
                         .with(ItemEntry.builder(ModItems.SHIFTER_AIRDROP));
 
                 LootPool.Builder poolBuilder2 = LootPool.builder()
                         .rolls(ConstantLootNumberProvider.create(1))
-                        .conditionally(RandomChanceLootCondition.builder(0.0009f))
+                        .conditionally(RandomChanceLootCondition.builder(0.001f))
                         .with(ItemEntry.builder(ModItems.ACKERMAN_SYRINGE));
 
                 LootPool.Builder poolBuilder3 = LootPool.builder()
                         .rolls(ConstantLootNumberProvider.create(1))
-                        .conditionally(RandomChanceLootCondition.builder(0.03f))
+                        .conditionally(RandomChanceLootCondition.builder(0.05f))
                         .with(ItemEntry.builder(ModItems.THUNDER_SPEAR_PACKAGE));
 
                 LootPool.Builder poolBuilder4 = LootPool.builder()
