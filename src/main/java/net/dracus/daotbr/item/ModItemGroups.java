@@ -35,7 +35,7 @@ public class ModItemGroups {
                     .entries((displayContext, entries) -> {
                         entries.add(ModItems.THUNDER_SPEAR_PACKAGE);
                         entries.add(ModItems.APG_PACKAGE);
-                        entries.add(ModItems.BR_START);
+//                        entries.add(ModItems.BR_START);
                         entries.add(ModItems.SHIFTER_AIRDROP);
                         entries.add(ModItems.SHIELD_POTION);
                     })
