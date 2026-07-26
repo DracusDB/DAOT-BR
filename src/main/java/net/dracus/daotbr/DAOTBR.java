@@ -51,6 +51,7 @@ public class DAOTBR implements ModInitializer {
 		FlareGunListener.register();
 		ShifterIncapacitationHandler.initCooldownScheduler();
 		ShifterIncapacitationHandler.register();
+		ShifterIncapacitationHandler.initCarryDropChecker();
 
 		ModLootTableModifiers.modifyLootTables();
 

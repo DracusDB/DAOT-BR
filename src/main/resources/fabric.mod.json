@@ -1,7 +1,7 @@
 {
 	"schemaVersion": 1,
 	"id": "daotbr",
-	"version": "0.7.0",
+	"version": "0.7.1",
 	"name": "DAOT BR",
 	"description": "A battle royale addon to Danny's Attack on Titan Mod",
 	"authors": [
@@ -29,21 +29,22 @@
 		]
 	},
 	"mixins": [
-		"daotbr.mixins.json"
+		"daotbr.mixins.json",
+		{
+			"config": "daotbr.client.mixins.json",
+			"environment": "client"
+		}
 	],
 	"depends": {
 		"fabricloader": ">=0.16.0",
 		"fabric-api": "*",
 		"minecraft": "~1.21.1",
 		"java": ">=21",
-
 		"dannys-aot": "*",
 		"starterkit": "*"
 	},
-
 	"suggests": {
 		"backpacked": "*",
 		"journeymap": "*"
-
 	}
 }
