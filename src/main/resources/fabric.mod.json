@@ -41,7 +41,8 @@
 		"minecraft": "~1.21.1",
 		"java": ">=21",
 		"dannys-aot": "*",
-		"starterkit": "*"
+		"starterkit": "*",
+		"daotsyringes": "*"
 	},
 	"suggests": {
 		"backpacked": "*",

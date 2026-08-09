@@ -39,6 +39,7 @@ dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	modImplementation files('libs/daotsyringes-1.0.0.jar')
 	modCompileOnlyApi group: 'info.journeymap', name: 'journeymap-api-fabric', version: '2.0.0-1.21.1-SNAPSHOT', changing: true
 
 	// Fabric API. This is technically optional, but you probably want it anyway.

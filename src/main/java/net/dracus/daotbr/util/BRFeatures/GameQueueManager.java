@@ -285,6 +285,7 @@ public class GameQueueManager {
                 "gamerule announceShifterDefeat true",
 
                 //sets preferred gamerules as intended
+                "gamerule announceSyringeUse true",
                 "gamerule villagersSpawnWithPowers false",
                 "gamerule allowOgreSpawns false",
                 "gamerule forceShifting false",
