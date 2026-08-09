@@ -3,7 +3,7 @@
   "package": "net.dracus.daotbr.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
-    "IncapacitationInputMixin"
+
   ],
   "injectors": {
     "defaultRequire": 1

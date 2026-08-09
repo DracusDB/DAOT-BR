@@ -237,14 +237,14 @@ public class ShifterAirdropManager {
                     if (blockEntity instanceof ChestBlockEntity chestEntity) {
                         List<Item> weightedPool = new ArrayList<>();
 
-                        addWeighted(weightedPool, ModItems.ATTACK_SYRINGE, 3);
-                        addWeighted(weightedPool, ModItems.ARMORED_SYRINGE, 3);
-                        addWeighted(weightedPool, ModItems.BEAST_SYRINGE, 3);
-//                        addWeighted(weightedPool, ModItems.CART_SYRINGE, 3);
-                        addWeighted(weightedPool, ModItems.FEMALE_SYRINGE, 3);
-                        addWeighted(weightedPool, ModItems.JAW_SYRINGE, 3);
-                        addWeighted(weightedPool, ModItems.WARHAMMER_SYRINGE, 3);
-                        addWeighted(weightedPool, ModItems.COLOSSAL_SYRINGE, 1);
+                        addWeighted(weightedPool, net.dracus.daotsyringes.item.ModItems.ATTACK_SYRINGE, 3);
+                        addWeighted(weightedPool, net.dracus.daotsyringes.item.ModItems.ARMORED_SYRINGE, 3);
+                        addWeighted(weightedPool, net.dracus.daotsyringes.item.ModItems.BEAST_SYRINGE, 3);
+//                        addWeighted(weightedPool, net.dracus.daotsyringes.item.ModItems.CART_SYRINGE, 3);
+                        addWeighted(weightedPool, net.dracus.daotsyringes.item.ModItems.FEMALE_SYRINGE, 3);
+                        addWeighted(weightedPool, net.dracus.daotsyringes.item.ModItems.JAW_SYRINGE, 3);
+                        addWeighted(weightedPool, net.dracus.daotsyringes.item.ModItems.WARHAMMER_SYRINGE, 3);
+                        addWeighted(weightedPool, net.dracus.daotsyringes.item.ModItems.COLOSSAL_SYRINGE, 1);
 
                         Item syringe = weightedPool.get(RANDOM.nextInt(weightedPool.size()));
                         chestEntity.setStack(13, new ItemStack(syringe));

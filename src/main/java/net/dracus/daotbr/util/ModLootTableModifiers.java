@@ -42,7 +42,7 @@ public class ModLootTableModifiers {
                 LootPool.Builder poolBuilder2 = LootPool.builder()
                         .rolls(ConstantLootNumberProvider.create(1))
                         .conditionally(RandomChanceLootCondition.builder(0.001f))
-                        .with(ItemEntry.builder(ModItems.ACKERMAN_SYRINGE));
+                        .with(ItemEntry.builder(net.dracus.daotsyringes.item.ModItems.ACKERMAN_SYRINGE));
 
                 LootPool.Builder poolBuilder3 = LootPool.builder()
                         .rolls(ConstantLootNumberProvider.create(1))
@@ -51,13 +51,53 @@ public class ModLootTableModifiers {
 
                 LootPool.Builder poolBuilder4 = LootPool.builder()
                         .rolls(ConstantLootNumberProvider.create(1))
-                        .conditionally(RandomChanceLootCondition.builder(0.07f))
+                        .conditionally(RandomChanceLootCondition.builder(0.05f))
                         .with(ItemEntry.builder(ModItems.APG_PACKAGE));
 
                 LootPool.Builder poolBuilder11 = LootPool.builder()
                         .rolls(ConstantLootNumberProvider.create(1))
                         .conditionally(RandomChanceLootCondition.builder(0.02f))
                         .with(ItemEntry.builder(ModItems.SHIELD_POTION));
+
+                LootPool.Builder poolBuilder12 = LootPool.builder()
+                        .rolls(ConstantLootNumberProvider.create(1))
+                        .conditionally(RandomChanceLootCondition.builder(0.0005f))
+                        .with(ItemEntry.builder(net.dracus.daotsyringes.item.ModItems.ATTACK_SYRINGE));
+
+                LootPool.Builder poolBuilder13 = LootPool.builder()
+                        .rolls(ConstantLootNumberProvider.create(1))
+                        .conditionally(RandomChanceLootCondition.builder(0.0005f))
+                        .with(ItemEntry.builder(net.dracus.daotsyringes.item.ModItems.ARMORED_SYRINGE));
+
+                LootPool.Builder poolBuilder14 = LootPool.builder()
+                        .rolls(ConstantLootNumberProvider.create(1))
+                        .conditionally(RandomChanceLootCondition.builder(0.0005f))
+                        .with(ItemEntry.builder(net.dracus.daotsyringes.item.ModItems.BEAST_SYRINGE));
+
+//                LootPool.Builder poolBuilder15 = LootPool.builder()
+//                        .rolls(ConstantLootNumberProvider.create(1))
+//                        .conditionally(RandomChanceLootCondition.builder(0.0005f))
+//                        .with(ItemEntry.builder(net.dracus.daotsyringes.item.ModItems.CART_SYRINGE));
+
+                LootPool.Builder poolBuilder16 = LootPool.builder()
+                        .rolls(ConstantLootNumberProvider.create(1))
+                        .conditionally(RandomChanceLootCondition.builder(0.0003f))
+                        .with(ItemEntry.builder(net.dracus.daotsyringes.item.ModItems.COLOSSAL_SYRINGE));
+
+                LootPool.Builder poolBuilder17 = LootPool.builder()
+                        .rolls(ConstantLootNumberProvider.create(1))
+                        .conditionally(RandomChanceLootCondition.builder(0.0005f))
+                        .with(ItemEntry.builder(net.dracus.daotsyringes.item.ModItems.FEMALE_SYRINGE));
+
+                LootPool.Builder poolBuilder18 = LootPool.builder()
+                        .rolls(ConstantLootNumberProvider.create(1))
+                        .conditionally(RandomChanceLootCondition.builder(0.0005f))
+                        .with(ItemEntry.builder(net.dracus.daotsyringes.item.ModItems.JAW_SYRINGE));
+
+                LootPool.Builder poolBuilder19 = LootPool.builder()
+                        .rolls(ConstantLootNumberProvider.create(1))
+                        .conditionally(RandomChanceLootCondition.builder(0.0005f))
+                        .with(ItemEntry.builder(net.dracus.daotsyringes.item.ModItems.WARHAMMER_SYRINGE));
 
 
 
@@ -85,7 +125,7 @@ public class ModLootTableModifiers {
                         .with(ItemEntry.builder(armorPotion));
                 LootPool.Builder poolBuilder9 = LootPool.builder()
                         .rolls(ConstantLootNumberProvider.create(1))
-                        .conditionally(RandomChanceLootCondition.builder(0.009f))
+                        .conditionally(RandomChanceLootCondition.builder(0.002f))
                         .with(ItemEntry.builder(redFlareCartridge));
                 LootPool.Builder poolBuilder10 = LootPool.builder()
                         .rolls(ConstantLootNumberProvider.create(1))
@@ -104,6 +144,14 @@ public class ModLootTableModifiers {
                 tableBuilder.pool(poolBuilder9);
                 tableBuilder.pool(poolBuilder10);
                 tableBuilder.pool(poolBuilder11);
+                tableBuilder.pool(poolBuilder12);
+                tableBuilder.pool(poolBuilder13);
+                tableBuilder.pool(poolBuilder14);
+//                tableBuilder.pool(poolBuilder15);
+                tableBuilder.pool(poolBuilder16);
+                tableBuilder.pool(poolBuilder17);
+                tableBuilder.pool(poolBuilder18);
+                tableBuilder.pool(poolBuilder19);
             }
         });
     }
