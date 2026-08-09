@@ -96,20 +96,32 @@ public class ShifterAirdropManager {
 
     // ---- random drop-in-zone scheduler ----
     private static final long RANDOM_DROP_CHECK_INTERVAL_MS = 30_000;
-    private static final double[] PHASE_DROP_CHANCE = { 0.02, 0.04, 0.06, 0.08, 0.10 };
-    private static long lastRandomDropCheck = 0;
+    // Drought-based scaling: chance climbs the longer it's been since the last airdrop.
+    private static final double BASE_DROP_CHANCE = 0.02;      // floor chance right after a spawn
+    private static final double MAX_DROP_CHANCE = 0.50;       // hard cap so it's never guaranteed-every-check
+    private static final double CHANCE_PER_MINUTE_DROUGHT = 0.03; // +4% chance per minute since last spawn
 
+    private static long lastRandomDropCheck = 0;
+    private static long lastAirdropSpawnMillis = 0;
 
     public static void initRandomDropScheduler() {
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             if (!GameStageManager.isInArenaStage()) return;
 
             long now = System.currentTimeMillis();
+
+            // Start the drought clock the first time we actually enter the arena stage,
+            // rather than counting from class-load time.
+            if (lastAirdropSpawnMillis == 0) {
+                lastAirdropSpawnMillis = now;
+            }
+
             if (now - lastRandomDropCheck < RANDOM_DROP_CHECK_INTERVAL_MS) return;
             lastRandomDropCheck = now;
 
-            int phaseIndex = GameStageManager.getZonePhaseIndex();
-            double chance = PHASE_DROP_CHANCE[Math.min(phaseIndex, PHASE_DROP_CHANCE.length - 1)];
+            double minutesSinceLastSpawn = (now - lastAirdropSpawnMillis) / 60_000.0;
+            double chance = Math.min(MAX_DROP_CHANCE, BASE_DROP_CHANCE + minutesSinceLastSpawn * CHANCE_PER_MINUTE_DROUGHT);
+
             if (RANDOM.nextDouble() >= chance) return;
 
             ServerWorld arenaWorld = server.getWorld(GameStageManager.ARENA_DIMENSION);
@@ -128,7 +140,7 @@ public class ShifterAirdropManager {
             arenaWorld.getChunkManager().setChunkForced(chunkPos, true);
             scheduledUnforces.add(new ScheduledUnforce(arenaWorld, chunkPos, 70_000));
 
-            arenaWorld.getChunk(x >> 4, z >> 4); // force synchronous load before reading the heightmap
+            arenaWorld.getChunk(x >> 4, z >> 4);
 
             int groundY = arenaWorld.getTopY(Heightmap.Type.MOTION_BLOCKING, x, z);
             BlockPos targetPos = new BlockPos(x, groundY, z);
@@ -136,6 +148,9 @@ public class ShifterAirdropManager {
             spawnAirdropAt(server, arenaWorld, targetPos,
                     Text.literal("A random shifter syringe airdrop has been spawned at " + x + " " + z + "! It will land in 60 seconds!")
                             .formatted(Formatting.GREEN, Formatting.ITALIC, Formatting.BOLD));
+
+            // Reset the drought clock — the timer starts over from this successful spawn.
+            lastAirdropSpawnMillis = now;
         });
     }
 

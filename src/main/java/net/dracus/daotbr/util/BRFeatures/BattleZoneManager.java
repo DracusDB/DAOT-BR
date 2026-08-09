@@ -72,11 +72,14 @@ public class BattleZoneManager {
     private static final long ACTIONBAR_INTERVAL_MS = 1000;
     private static final long VISUAL_INTERVAL_MS = 250;
 
+    private final double initialRadius;
+
     public BattleZoneManager(ServerWorld arenaWorld, double centerX, double centerZ, double startingRadius) {
         this.arenaWorld = arenaWorld;
         this.centerX = centerX;
         this.centerZ = centerZ;
         this.shrinkStartRadius = startingRadius;
+        this.initialRadius = startingRadius;
     }
 
     public double getRadius() {
@@ -270,10 +273,15 @@ public class BattleZoneManager {
     private static final int COLUMN_HEIGHT = 100;
     private static final int PARTICLES_PER_COLUMN = 40; // one call spreads all 40 through the column
 
+    private static final int MIN_PARTICLES_PER_COLUMN = 5;
+    private static final int MIN_RING_POINTS = 24;
+
     private void renderZoneRing(double radius, List<ServerPlayerEntity> players) {
         if (players.isEmpty()) return;
 
-        int totalPoints = Math.max(64, (int) (2 * Math.PI * radius / POINT_SPACING));
+        double sizeRatio = Math.max(0.15, radius / initialRadius); // floor so it never fully vanishes
+        int particlesPerColumn = Math.max(MIN_PARTICLES_PER_COLUMN, (int) (PARTICLES_PER_COLUMN * sizeRatio));
+        int totalPoints = Math.max(MIN_RING_POINTS, (int) (2 * Math.PI * radius / POINT_SPACING));
 
         for (int i = 0; i < totalPoints; i++) {
             double angle = 2 * Math.PI * i / totalPoints;
@@ -289,13 +297,11 @@ public class BattleZoneManager {
                 if (dx * dx + dz * dz > RENDER_RADIUS * RENDER_RADIUS) continue;
 
                 arenaWorld.spawnParticles(player, ParticleTypes.CAMPFIRE_COSY_SMOKE, true, x, columnCenterY, z,
-                        PARTICLES_PER_COLUMN, 1.0, COLUMN_HEIGHT / 2.0, 1.0, 0.01);
+                        particlesPerColumn, 1.0, COLUMN_HEIGHT / 2.0, 1.0, 0.01);
                 arenaWorld.spawnParticles(player, ParticleTypes.FLAME, true, x + 1.0, columnCenterY, z + 1.0,
-                        PARTICLES_PER_COLUMN, 1.0, COLUMN_HEIGHT / 2.0, 1.0, 0.01);
+                        particlesPerColumn, 1.0, COLUMN_HEIGHT / 2.0, 1.0, 0.01);
                 arenaWorld.spawnParticles(player, ParticleTypes.CLOUD, true, x + 0.5, columnCenterY, z + 0.5,
-                        PARTICLES_PER_COLUMN, 1.0, COLUMN_HEIGHT / 2.0, 1.0, 0.01);
-//                arenaWorld.spawnParticles(player, ParticleTypes.EXPLOSION, true, x, surfaceY, z,
-//                        1, 1.0, 10.0 / 2.0, 1.0, 0.00001);
+                        particlesPerColumn, 1.0, COLUMN_HEIGHT / 2.0, 1.0, 0.01);
             }
         }
     }
